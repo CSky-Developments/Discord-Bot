@@ -49,4 +49,7 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] The `deployer` user must be part of the `docker` group to execute `docker compose` commands without `sudo`.
 
 ## 5. Docker Permissions
-- [ ] The mounted volume directory `/opt/csky-discord-bot/infra/data` must be writable by the container. Since the container runs as a non-root user (`botuser`), ensure the permissions are sufficiently open or explicitly owned by the UID used in the container.
+- [ ] The mounted volume directory `/opt/csky-discord-bot/infra/data` must be writable by the container. Since the container runs as a non-root user (`botuser`), ensure the permissions are explicitly owned by the UID `10000` used in the container:
+  ```bash
+  sudo chown -R 10000:10000 /opt/csky-discord-bot/infra/data
+  ```
