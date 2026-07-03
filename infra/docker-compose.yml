@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/csky-developments/discord-bot:${IMAGE_TAG:-latest}
     container_name: csky-bot
+    user: "${CSKY_UID:-1000}:${CSKY_GID:-1000}"
     restart: unless-stopped
     deploy:
       resources:
@@ -17,6 +18,6 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
-      - ./data:/app/data
+      - /srv/csky-discord-bot/data:/app/data
     env_file:
       - .env
