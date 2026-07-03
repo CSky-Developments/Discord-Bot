@@ -60,7 +60,7 @@
 - **CSky Deployment Standard**:
   - **No root containers**: Applications must run as non-root.
   - **Dynamic host user**: The container does not hardcode UIDs/GIDs. `docker-compose.yml` explicitly specifies `user: "${PUID}:${PGID}"`. Ephemeral data is strictly written to the system `/tmp` directory, preventing the need to `chmod 777` the working directory and keeping the container read-only outside of explicitly mapped volumes.
-  - **Persistent storage**: All persistent files must be stored under `/srv` (e.g., `/srv/csky-discord-bot/data`) and are owned by the `csky` user on the host machine.
+  - **Persistent storage**: All persistent files must be stored in the service-local data directory (e.g., `/srv/services/discord-bot/data`) and are owned by the `csky` user on the host machine.
   - **Every future CSky service must follow this same convention** to avoid debugging Linux file permissions for bind mounts ever again.
 - **Deployment workflow**: GitHub Actions automates building the image, publishing to GHCR, and pulling/running via SSH to the VPS.
 - **Scope limitation**: Keep deployment infrastructure limited to this project (Dockerfile, docker-compose.yml, env configs, deployment docs). Assume a separate repo manages VPS, reverse proxy, monitoring, backups, etc. Do not duplicate shared infrastructure here.
