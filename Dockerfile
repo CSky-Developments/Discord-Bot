@@ -9,6 +9,14 @@ RUN mvn clean package -DskipTests
 # Stage 2: Run the Bot
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=builder /app/target/arsh-1.0-SNAPSHOT.jar app.jar
+
+# Create non-root user for security
+RUN addgroup -S botgroup && adduser -S botuser -G botgroup
+
+COPY --from=builder --chown=botuser:botgroup /app/target/arsh-1.0-SNAPSHOT.jar app.jar
+RUN chown -R botuser:botgroup /app
+
+USER botuser
+
 # Setting sensible JVM resource limits for a Discord bot
 ENTRYPOINT ["java", "-XX:+UseZGC", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]
