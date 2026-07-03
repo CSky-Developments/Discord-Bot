@@ -19,8 +19,9 @@ The application strictly relies on standard environment variables for configurat
 
 An `.env` file must be created on the VPS at `/opt/csky-discord-bot/infra/.env` containing the following:
 ```env
-PUID=1000
-PGID=1000
+# Populate PUID and PGID using: id -u csky and id -g csky
+PUID=
+PGID=
 DISCORD_TOKEN=your_token
 GUILD_ID=your_guild_id
 LOG_CHANNEL_ID=your_log_channel

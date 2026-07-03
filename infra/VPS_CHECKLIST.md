@@ -24,8 +24,9 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] An `.env` file MUST be placed alongside your docker-compose.yml (e.g. `/opt/csky-discord-bot/infra/.env`).
 - [ ] The `.env` file MUST contain all production secrets, as well as the UID/GID for the `csky` user on the host:
   ```env
-  PUID=1000  # Replace with the actual UID of the 'csky' user
-  PGID=1000  # Replace with the actual GID of the 'csky' user
+  # Populate PUID and PGID using: id -u csky and id -g csky
+  PUID=
+  PGID=
   DISCORD_TOKEN=your_token
   GUILD_ID=your_guild_id
   LOG_CHANNEL_ID=your_log_channel
