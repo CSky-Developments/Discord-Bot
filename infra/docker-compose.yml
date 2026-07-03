@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/csky-developments/discord-bot:${IMAGE_TAG:-latest}
     container_name: csky-bot
-    user: "${PUID:-1000}:${PGID:-1000}"
+    user: "${PUID:?PUID not set}:${PGID:?PGID not set}"
     restart: unless-stopped
     deploy:
       resources:
