@@ -590,7 +590,7 @@ public class TicketManager extends ListenerAdapter {
         File readmeFile = project.getPath().resolve("sourcecode").resolve(project.getName()).resolve("README.md")
                 .toFile();
 
-        File buildLogFile = new File("build.log");
+        File buildLogFile = new File(System.getProperty("java.io.tmpdir"), "build.log");
         try (PrintWriter writer = new PrintWriter(buildLogFile)) {
             for (String l : fullLogBuffer) {
                 writer.println(l);

@@ -24,8 +24,8 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] An `.env` file MUST be placed alongside your docker-compose.yml (e.g. `/opt/csky-discord-bot/infra/.env`).
 - [ ] The `.env` file MUST contain all production secrets, as well as the UID/GID for the `csky` user on the host:
   ```env
-  CSKY_UID=1000  # Replace with the actual UID of the 'csky' user
-  CSKY_GID=1000  # Replace with the actual GID of the 'csky' user
+  PUID=1000  # Replace with the actual UID of the 'csky' user
+  PGID=1000  # Replace with the actual GID of the 'csky' user
   DISCORD_TOKEN=your_token
   GUILD_ID=your_guild_id
   LOG_CHANNEL_ID=your_log_channel
@@ -52,4 +52,4 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] The `deployer` user must be part of the `docker` group to execute `docker compose` commands without `sudo`.
 
 ## 5. Docker Permissions
-- [ ] The mounted volume directory `/srv/csky-discord-bot/data` must be writable by the `csky` user. Because the container is strictly configured in Docker Compose to run using the `CSKY_UID` and `CSKY_GID`, the container will seamlessly inherit read/write permissions for the `/srv/csky-discord-bot/data` volume without any manual permission fix-up scripts.
+- [ ] The mounted volume directory `/srv/csky-discord-bot/data` must be writable by the `csky` user. Because the container is strictly configured in Docker Compose to run using the `PUID` and `PGID`, the container will seamlessly inherit read/write permissions for the `/srv/csky-discord-bot/data` volume without any manual permission fix-up scripts.

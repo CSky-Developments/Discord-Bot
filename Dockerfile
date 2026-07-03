@@ -10,9 +10,7 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Support running as an arbitrary host UID/GID by making the working directory writable
 COPY --from=builder /app/target/arsh-1.0-SNAPSHOT.jar app.jar
-RUN chmod 777 /app
 
 # Setting sensible JVM resource limits for a Discord bot
 ENTRYPOINT ["java", "-XX:+UseZGC", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]

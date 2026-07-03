@@ -14,7 +14,7 @@ public class Project {
 
     public Project(String name, String version, String description) {
         this.id = UUID.randomUUID();
-        this.path = Path.of("./plugins/" + name + "-" + id.toString());
+        this.path = Path.of(System.getProperty("java.io.tmpdir"), "plugins", name + "-" + id.toString());
         this.name = name;
         this.version = version;
         this.description = description;

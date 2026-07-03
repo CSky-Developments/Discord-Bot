@@ -59,7 +59,7 @@
 - **Docker requirements**: A multi-stage `Dockerfile` and `docker-compose.yml` build an Alpine image.
 - **CSky Deployment Standard**:
   - **No root containers**: Applications must run as non-root.
-  - **Dynamic host user**: The container does not hardcode UIDs/GIDs (e.g., no `adduser -u 10000`). Instead, the Docker container's working directories are made world-writable (`chmod 777`) for ephemeral data, and `docker-compose.yml` explicitly specifies `user: "${CSKY_UID}:${CSKY_GID}"`.
+  - **Dynamic host user**: The container does not hardcode UIDs/GIDs. `docker-compose.yml` explicitly specifies `user: "${PUID}:${PGID}"`. Ephemeral data is strictly written to the system `/tmp` directory, preventing the need to `chmod 777` the working directory and keeping the container read-only outside of explicitly mapped volumes.
   - **Persistent storage**: All persistent files must be stored under `/srv` (e.g., `/srv/csky-discord-bot/data`) and are owned by the `csky` user on the host machine.
   - **Every future CSky service must follow this same convention** to avoid debugging Linux file permissions for bind mounts ever again.
 - **Deployment workflow**: GitHub Actions automates building the image, publishing to GHCR, and pulling/running via SSH to the VPS.

@@ -37,7 +37,7 @@ public class Generator {
     }
 
     private static File writeLicenseFile(String encrypted) throws IOException {
-        File file = new File("license.key");
+        File file = new File(System.getProperty("java.io.tmpdir"), "license.key");
         try (FileWriter writer = new FileWriter(file)) {
             writer.write("-----BEGIN LICENSE KEY-----\n");
             writer.write(encrypted + "\n");
