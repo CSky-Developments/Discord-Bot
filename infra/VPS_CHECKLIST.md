@@ -14,15 +14,18 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
   ```
 
 ## 2. Directory Structure
-- [ ] Ensure the deployment root directory exists and is writable by the deployment user:
+- [ ] Ensure the deployment root directory exists and is owned by the `csky` user:
   ```bash
-  mkdir -p /opt/csky-discord-bot/infra/data
+  sudo mkdir -p /srv/csky-discord-bot/data
+  sudo chown -R csky:csky /srv/csky-discord-bot
   ```
 
 ## 3. Environment Variables (Secrets)
-- [ ] An `.env` file MUST be placed inside `/opt/csky-discord-bot/infra/`.
-- [ ] The `.env` file MUST contain all production secrets, strictly formatted:
+- [ ] An `.env` file MUST be placed alongside your docker-compose.yml (e.g. `/opt/csky-discord-bot/infra/.env`).
+- [ ] The `.env` file MUST contain all production secrets, as well as the UID/GID for the `csky` user on the host:
   ```env
+  CSKY_UID=1000  # Replace with the actual UID of the 'csky' user
+  CSKY_GID=1000  # Replace with the actual GID of the 'csky' user
   DISCORD_TOKEN=your_token
   GUILD_ID=your_guild_id
   LOG_CHANNEL_ID=your_log_channel
@@ -49,7 +52,4 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] The `deployer` user must be part of the `docker` group to execute `docker compose` commands without `sudo`.
 
 ## 5. Docker Permissions
-- [ ] The mounted volume directory `/opt/csky-discord-bot/infra/data` must be writable by the container. Since the container runs as a non-root user (`botuser`), ensure the permissions are explicitly owned by the UID `10000` used in the container:
-  ```bash
-  sudo chown -R 10000:10000 /opt/csky-discord-bot/infra/data
-  ```
+- [ ] The mounted volume directory `/srv/csky-discord-bot/data` must be writable by the `csky` user. Because the container is strictly configured in Docker Compose to run using the `CSKY_UID` and `CSKY_GID`, the container will seamlessly inherit read/write permissions for the `/srv/csky-discord-bot/data` volume without any manual permission fix-up scripts.

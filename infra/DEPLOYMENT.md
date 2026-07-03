@@ -19,6 +19,8 @@ The application strictly relies on standard environment variables for configurat
 
 An `.env` file must be created on the VPS at `/opt/csky-discord-bot/infra/.env` containing the following:
 ```env
+CSKY_UID=1000
+CSKY_GID=1000
 DISCORD_TOKEN=your_token
 GUILD_ID=your_guild_id
 LOG_CHANNEL_ID=your_log_channel
@@ -51,8 +53,10 @@ Deployments are fully automated via GitHub Actions.
 
 No manual intervention is required to deploy new code. The VPS never builds Java code; it simply pulls the latest compiled Docker image.
 
-## Persistent Data (Volumes)
-Stateful bot data (such as counting games, invites, and tickets) are written to `./data/`. This directory is mounted as a Docker volume (`- ./data:/app/data`) ensuring data survives deployments and container restarts. Ephemeral data (`plugins/`, `license.key`) remain inside the container and are destroyed on restart.
+## Persistent Data (Volumes) & Permissions
+Stateful bot data (such as counting games, invites, and tickets) are mapped to `/srv/csky-discord-bot/data` on the host. The application runs strictly as the host `csky` user, explicitly resolving the permission issues caused by Docker's root behavior. 
+
+By defining `CSKY_UID` and `CSKY_GID` in the `.env` file, the container inherits the exact permissions needed to read and write to the host's `/srv/csky-discord-bot` directory. Ephemeral data (`plugins/`, `license.key`) remain inside the container in a `/app` directory modified with `chmod 777` at image build time to support arbitrary host UID execution.
 
 ## Common Maintenance Tasks
 
