@@ -76,6 +76,7 @@
 - **Keep documentation synchronized with implementation**: Ensure `AGENTS.md` and `infra/DEPLOYMENT.md` reflect actual states.
 - **Explain trade-offs before making significant changes**: Always clarify why a change is needed (e.g., moving secrets to ENV variables).
 - **Prefer incremental improvements over large rewrites**: Introduce changes slowly and testability.
+- **Limit infrastructure scope**: Keep deployment infrastructure limited to this project (Dockerfile, docker-compose.yml, env configs, deployment docs). Assume a separate repo manages VPS, reverse proxy, monitoring, backups, etc. Do not duplicate shared infrastructure here.
 
 # Change Log
 
