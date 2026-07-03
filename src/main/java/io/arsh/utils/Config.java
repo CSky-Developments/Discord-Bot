@@ -44,7 +44,7 @@ public class Config {
             Logger.info("Failed to read config.yml, relying strictly on Environment Variables.", false);
         }
 
-        TOKEN = getValue(data, "Token", "DISCORD_BOT_TOKEN");
+        TOKEN = getValue(data, "Token", "DISCORD_TOKEN");
         GUILD_ID = getValue(data, "Guild-ID", "GUILD_ID");
         LOG_CHANNEL_ID = getValue(data, "Log-Channel-ID", "LOG_CHANNEL_ID");
         MEMBER_COUNT_CHANNEL_ID = getValue(data, "Member-Count-Channel-ID", "MEMBER_COUNT_CHANNEL_ID");

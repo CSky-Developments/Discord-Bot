@@ -19,7 +19,7 @@ The application strictly relies on standard environment variables for configurat
 
 An `.env` file must be created on the VPS at `/opt/csky-discord-bot/infra/.env` containing the following:
 ```env
-DISCORD_BOT_TOKEN=your_token
+DISCORD_TOKEN=your_token
 GUILD_ID=your_guild_id
 LOG_CHANNEL_ID=your_log_channel
 MEMBER_COUNT_CHANNEL_ID=your_member_channel
