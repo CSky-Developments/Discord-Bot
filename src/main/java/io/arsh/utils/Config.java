@@ -31,55 +31,74 @@ public class Config {
 
     public static void load() {
         Yaml yaml = new Yaml();
-
+        Map<String, Object> data = null;
+        
         try (InputStream in = Config.class.getResourceAsStream("/config.yml")) {
-            if (in == null) {
-                Logger.error("Configuration file 'config.yml' not found in resources.", false);
-                System.exit(1);
+            if (in != null) {
+                data = yaml.load(in);
+                Logger.info("Loaded config.yml for local development fallback.", false);
+            } else {
+                Logger.info("No config.yml found. Relying strictly on Environment Variables.", false);
             }
-
-            Map<String, Object> data = yaml.load(in);
-
-            TOKEN = getValue(data, "Token");
-            GUILD_ID = getValue(data, "Guild-ID");
-            LOG_CHANNEL_ID = getValue(data, "Log-Channel-ID");
-            MEMBER_COUNT_CHANNEL_ID = getValue(data, "Member-Count-Channel-ID");
-            COUNTING_CHANNEL_ID = getValue(data, "Counting-Channel-ID");
-            STAFF_ROLE_ID = getValue(data, "Staff-Role-ID");
-            MEMBER_ROLE_ID = getValue(data, "Member-Role-ID");
-            AI_KEY = getValue(data, "AI-Key");
-            SUPPORT_CATEGORY_ID = getValue(data, "Support-Category-ID");
-            TICKET_CHANNEL_ID = getValue(data, "Ticket-Channel-ID");
-            TICKET_NORMAL = getValue(data, "Ticket-Normal-Category");
-            TICKET_ORDER = getValue(data, "Ticket-Order-Category");
-            TICKET_PLUGIN_GEN = getValue(data, "Ticket-Plugin-Generation-Category");
-            TICKET_REWARD = getValue(data, "Ticket-Reward-Category");
-            TICKET_STAFF_APP = getValue(data, "Ticket-Staff-App-Category");
-            LICENSE_GEN_ACCESS_ID_LIST = (List<String>) getValueObject(data, "License-Gen-Access-IDs");
-            PLUGIN_GEN_ACCESS_ROLE_ID = getValue(data, "Plugin-Gen-Access-Role-ID");
-            Logger.info("Configuration loaded successfully.", false);
-
         } catch (Exception e) {
-            Logger.error("Failed to load configuration: " + e.getMessage(), false);
-            System.exit(1);
+            Logger.info("Failed to read config.yml, relying strictly on Environment Variables.", false);
         }
+
+        TOKEN = getValue(data, "Token", "DISCORD_TOKEN");
+        GUILD_ID = getValue(data, "Guild-ID", "GUILD_ID");
+        LOG_CHANNEL_ID = getValue(data, "Log-Channel-ID", "LOG_CHANNEL_ID");
+        MEMBER_COUNT_CHANNEL_ID = getValue(data, "Member-Count-Channel-ID", "MEMBER_COUNT_CHANNEL_ID");
+        COUNTING_CHANNEL_ID = getValue(data, "Counting-Channel-ID", "COUNTING_CHANNEL_ID");
+        STAFF_ROLE_ID = getValue(data, "Staff-Role-ID", "STAFF_ROLE_ID");
+        MEMBER_ROLE_ID = getValue(data, "Member-Role-ID", "MEMBER_ROLE_ID");
+        AI_KEY = getValue(data, "AI-Key", "AI_KEY");
+        SUPPORT_CATEGORY_ID = getValue(data, "Support-Category-ID", "SUPPORT_CATEGORY_ID");
+        TICKET_CHANNEL_ID = getValue(data, "Ticket-Channel-ID", "TICKET_CHANNEL_ID");
+        TICKET_NORMAL = getValue(data, "Ticket-Normal-Category", "TICKET_NORMAL_CATEGORY");
+        TICKET_ORDER = getValue(data, "Ticket-Order-Category", "TICKET_ORDER_CATEGORY");
+        TICKET_PLUGIN_GEN = getValue(data, "Ticket-Plugin-Generation-Category", "TICKET_PLUGIN_GEN_CATEGORY");
+        TICKET_REWARD = getValue(data, "Ticket-Reward-Category", "TICKET_REWARD_CATEGORY");
+        TICKET_STAFF_APP = getValue(data, "Ticket-Staff-App-Category", "TICKET_STAFF_APP_CATEGORY");
+        PLUGIN_GEN_ACCESS_ROLE_ID = getValue(data, "Plugin-Gen-Access-Role-ID", "PLUGIN_GEN_ACCESS_ROLE_ID");
+        
+        LICENSE_GEN_ACCESS_ID_LIST = getListValue(data, "License-Gen-Access-IDs", "LICENSE_GEN_ACCESS_IDS");
+
+        Logger.info("Configuration loaded successfully.", false);
     }
 
-    private static String getValue(Map<String, Object> data, String key) {
-        Object value = data.get(key);
-        if (value == null) {
-            Logger.error("Missing required config value for key: '" + key + "'", false);
-            System.exit(1);
+    private static String getValue(Map<String, Object> data, String yamlKey, String envKey) {
+        String envValue = System.getenv(envKey);
+        if (envValue != null && !envValue.trim().isEmpty()) {
+            return envValue.trim();
         }
-        return value.toString();
+        
+        if (data != null && data.containsKey(yamlKey)) {
+            Object value = data.get(yamlKey);
+            if (value != null) {
+                return value.toString();
+            }
+        }
+        
+        Logger.error("Missing required config value. Please set ENV: '" + envKey + "' (or '" + yamlKey + "' in config.yml)", false);
+        System.exit(1);
+        return null;
     }
 
-    private static Object getValueObject(Map<String, Object> data, String key) {
-        Object value = data.get(key);
-        if (value == null) {
-            Logger.error("Missing required config value for key: '" + key + "'", false);
-            System.exit(1);
+    private static List<String> getListValue(Map<String, Object> data, String yamlKey, String envKey) {
+        String envValue = System.getenv(envKey);
+        if (envValue != null && !envValue.trim().isEmpty()) {
+            return java.util.Arrays.asList(envValue.split(","));
         }
-        return value;
+        
+        if (data != null && data.containsKey(yamlKey)) {
+            Object value = data.get(yamlKey);
+            if (value != null) {
+                return (List<String>) value;
+            }
+        }
+        
+        Logger.error("Missing required config value. Please set ENV: '" + envKey + "' (or '" + yamlKey + "' in config.yml)", false);
+        System.exit(1);
+        return null;
     }
 }
