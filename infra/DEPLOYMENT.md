@@ -15,62 +15,69 @@ The build process is defined in the multi-stage `Dockerfile` at the repository r
 2. **Stage 2 (Runtime)**: Copies the compiled JAR into a lightweight Alpine Java 21 JRE image. This minimizes the image size and reduces the security surface area.
 
 ## Required Environment Variables
-*Note: The application currently loads configuration from `src/main/resources/config.yml` built into the JAR. An upcoming refactor is planned to migrate to environment variables.*
+The application strictly relies on standard environment variables for configuration. `config.yml` is no longer required in production.
 
-For now, you must ensure your `config.yml` is populated with correct values (e.g. `Token`, `AI-Key`) **before** building the Docker image. 
+An `.env` file must be created on the VPS at `/opt/csky-discord-bot/infra/.env` containing the following:
+```env
+DISCORD_TOKEN=your_token
+GUILD_ID=your_guild_id
+LOG_CHANNEL_ID=your_log_channel
+MEMBER_COUNT_CHANNEL_ID=your_member_channel
+COUNTING_CHANNEL_ID=your_counting_channel
+STAFF_ROLE_ID=your_staff_role
+MEMBER_ROLE_ID=your_member_role
+AI_KEY=your_gemini_key
+SUPPORT_CATEGORY_ID=your_support_category
+TICKET_CHANNEL_ID=your_ticket_channel
+TICKET_NORMAL_CATEGORY=your_ticket_category
+TICKET_ORDER_CATEGORY=your_ticket_category
+TICKET_PLUGIN_GEN_CATEGORY=your_ticket_category
+TICKET_REWARD_CATEGORY=your_ticket_category
+TICKET_STAFF_APP_CATEGORY=your_ticket_category
+PLUGIN_GEN_ACCESS_ROLE_ID=your_role_id
+LICENSE_GEN_ACCESS_IDS=id1,id2,id3
+```
 
-## How to Deploy
-1. Ensure `src/main/resources/config.yml` has the correct tokens.
-2. Navigate to the `infra/` directory:
-   ```bash
-   cd infra
-   ```
-3. Build and start the container in detached mode:
-   ```bash
-   docker-compose up -d --build
-   ```
+## How to Deploy (CI/CD)
+Deployments are fully automated via GitHub Actions.
+
+1. Create a Pull Request or push code directly to the `main` branch.
+2. The `Deploy Bot to VPS` GitHub Action will automatically trigger.
+3. It will:
+   - Build the Docker image.
+   - Push the image to GitHub Container Registry (`ghcr.io`).
+   - SSH into the target VPS.
+   - Run `docker compose pull` and `docker compose up -d` in the `/opt/csky-discord-bot/infra` directory.
+
+No manual intervention is required to deploy new code. The VPS never builds Java code; it simply pulls the latest compiled Docker image.
+
+## Persistent Data (Volumes)
+Stateful bot data (such as counting games, invites, and tickets) are written to `./data/`. This directory is mounted as a Docker volume (`- ./data:/app/data`) ensuring data survives deployments and container restarts. Ephemeral data (`plugins/`, `license.key`) remain inside the container and are destroyed on restart.
 
 ## Common Maintenance Tasks
 
 ### Viewing Logs
 The Docker container manages logs using the `json-file` driver. We limit the log size to 10MB per file with a maximum of 3 files to prevent disk exhaustion.
-To view logs:
+To view logs on the VPS:
 ```bash
-docker-compose logs -f
+cd /opt/csky-discord-bot/infra
+docker compose logs -f
 ```
 
 ### Restarting the Bot
 If the bot crashes or needs a manual restart (e.g., rate limits):
 ```bash
-docker-compose restart
+cd /opt/csky-discord-bot/infra
+docker compose restart
 ```
 
-## Update Procedure
-When new code is pushed to the repository:
-1. Pull the latest code:
-   ```bash
-   git pull origin main
-   ```
-2. Rebuild and deploy:
-   ```bash
-   cd infra
-   docker-compose up -d --build
-   ```
-*Why `--build`?* Docker will see the new source code layers, recompile the JAR, and restart the container seamlessly.
-
 ## Rollback Procedure
-If a new update breaks the bot, you can rollback to a previous working commit:
-1. Identify the last working commit hash:
+If a new update breaks the bot, you can rollback to a previous version using the Docker tags stored in GHCR:
+1. SSH into the VPS and navigate to `/opt/csky-discord-bot/infra`.
+2. Edit `docker-compose.yml` and change the image tag from `latest` to a specific short Git SHA (e.g., `image: ghcr.io/csky-developments/discord-bot:a1b2c3d`).
+3. Re-deploy the container:
    ```bash
-   git log --oneline
+   docker compose pull
+   docker compose up -d
    ```
-2. Checkout the specific commit:
-   ```bash
-   git checkout <COMMIT_HASH>
-   ```
-3. Rebuild the image for that state:
-   ```bash
-   cd infra
-   docker-compose up -d --build
-   ```
-4. Once the issue is resolved on `main`, you can `git checkout main` and pull the fixes.
+4. Once the issue is resolved on `main`, revert the tag back to `latest` and push code.
