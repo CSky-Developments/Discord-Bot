@@ -10,13 +10,9 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Create non-root user for security with explicit UID/GID
-RUN addgroup -g 10000 botgroup && adduser -u 10000 -S botuser -G botgroup
-
-COPY --from=builder --chown=botuser:botgroup /app/target/arsh-1.0-SNAPSHOT.jar app.jar
-RUN chown -R botuser:botgroup /app
-
-USER botuser
+# Support running as an arbitrary host UID/GID by making the working directory writable
+COPY --from=builder /app/target/arsh-1.0-SNAPSHOT.jar app.jar
+RUN chmod 777 /app
 
 # Setting sensible JVM resource limits for a Discord bot
 ENTRYPOINT ["java", "-XX:+UseZGC", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]
