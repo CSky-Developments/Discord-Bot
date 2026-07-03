@@ -55,9 +55,15 @@
 # Deployment
 
 - **Runtime requirements**: Java 21 JRE/JDK.
-- **Environment variables**: Managed through `config.yml` currently, but should ideally move sensitive tokens (Discord Token, AI Key) to standard `.env` environment variables to prevent accidental leaks.
-- **Docker requirements**: A `Dockerfile` and `docker-compose.yml` are required for production consistency.
-- **Deployment workflow**: Build a fat JAR using `mvn package` (maven-shade-plugin) and execute it via `java -jar arsh-1.0-SNAPSHOT.jar`.
+- **Environment variables**: Managed strictly via standard environment variables. `config.yml` is deprecated in production.
+- **Docker requirements**: A multi-stage `Dockerfile` and `docker-compose.yml` build an Alpine image.
+- **CSky Deployment Standard**:
+  - **No root containers**: Applications must run as non-root.
+  - **Dynamic host user**: The container does not hardcode UIDs/GIDs (e.g., no `adduser -u 10000`). Instead, the Docker container's working directories are made world-writable (`chmod 777`) for ephemeral data, and `docker-compose.yml` explicitly specifies `user: "${CSKY_UID}:${CSKY_GID}"`.
+  - **Persistent storage**: All persistent files must be stored under `/srv` (e.g., `/srv/csky-discord-bot/data`) and are owned by the `csky` user on the host machine.
+  - **Every future CSky service must follow this same convention** to avoid debugging Linux file permissions for bind mounts ever again.
+- **Deployment workflow**: GitHub Actions automates building the image, publishing to GHCR, and pulling/running via SSH to the VPS.
+- **Scope limitation**: Keep deployment infrastructure limited to this project (Dockerfile, docker-compose.yml, env configs, deployment docs). Assume a separate repo manages VPS, reverse proxy, monitoring, backups, etc. Do not duplicate shared infrastructure here.
 
 # Known Technical Debt
 
