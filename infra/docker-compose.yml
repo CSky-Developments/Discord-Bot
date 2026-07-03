@@ -18,6 +18,6 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
-      - /srv/csky-discord-bot/data:/app/data
+      - ../data:/app/data
     env_file:
       - .env
