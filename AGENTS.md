@@ -83,6 +83,7 @@
 - **Explain trade-offs before making significant changes**: Always clarify why a change is needed (e.g., moving secrets to ENV variables).
 - **Prefer incremental improvements over large rewrites**: Introduce changes slowly and testability.
 - **Limit infrastructure scope**: Keep deployment infrastructure limited to this project (Dockerfile, docker-compose.yml, env configs, deployment docs). Assume a separate repo manages VPS, reverse proxy, monitoring, backups, etc. Do not duplicate shared infrastructure here.
+- **Never assume numeric UIDs/GIDs**: The deployment user is dynamically assigned by the host infrastructure. Containers must consume `PUID` and `PGID` without fallback defaults (e.g., 1000).
 
 # Change Log
 
