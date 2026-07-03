@@ -16,12 +16,12 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 ## 2. Directory Structure
 - [ ] Ensure the deployment root directory exists and is owned by the `csky` user:
   ```bash
-  sudo mkdir -p /srv/csky-discord-bot/data
-  sudo chown -R csky:csky /srv/csky-discord-bot
+  sudo mkdir -p /srv/services/discord-bot/data
+  sudo chown -R csky:csky /srv/services/discord-bot
   ```
 
 ## 3. Environment Variables (Secrets)
-- [ ] An `.env` file MUST be placed alongside your docker-compose.yml (e.g. `/opt/csky-discord-bot/infra/.env`).
+- [ ] An `.env` file MUST be placed alongside your docker-compose.yml (e.g. `/srv/services/discord-bot/infra/.env`).
 - [ ] The `.env` file MUST contain all production secrets, as well as the UID/GID for the `csky` user on the host:
   ```env
   # Populate PUID and PGID using: id -u csky and id -g csky
@@ -53,4 +53,4 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] The `deployer` user must be part of the `docker` group to execute `docker compose` commands without `sudo`.
 
 ## 5. Docker Permissions
-- [ ] The mounted volume directory `/srv/csky-discord-bot/data` must be writable by the `csky` user. Because the container is strictly configured in Docker Compose to run using the `PUID` and `PGID`, the container will seamlessly inherit read/write permissions for the `/srv/csky-discord-bot/data` volume without any manual permission fix-up scripts.
+- [ ] The mounted volume directory `data/` must be writable by the `csky` user. Because the container is strictly configured in Docker Compose to run using the `PUID` and `PGID`, the container will seamlessly inherit read/write permissions for the `data/` volume without any manual permission fix-up scripts.

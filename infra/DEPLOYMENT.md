@@ -17,7 +17,7 @@ The build process is defined in the multi-stage `Dockerfile` at the repository r
 ## Required Environment Variables
 The application strictly relies on standard environment variables for configuration. `config.yml` is no longer required in production.
 
-An `.env` file must be created on the VPS at `/opt/csky-discord-bot/infra/.env` containing the following:
+An `.env` file must be created on the VPS at `/srv/services/discord-bot/infra/.env` containing the following:
 ```env
 # Populate PUID and PGID using: id -u csky and id -g csky
 PUID=
@@ -50,14 +50,14 @@ Deployments are fully automated via GitHub Actions.
    - Build the Docker image.
    - Push the image to GitHub Container Registry (`ghcr.io`).
    - SSH into the target VPS.
-   - Run `docker compose pull` and `docker compose up -d` in the `/opt/csky-discord-bot/infra` directory.
+   - Run `docker compose pull` and `docker compose up -d` in the `/srv/services/discord-bot/infra` directory.
 
 No manual intervention is required to deploy new code. The VPS never builds Java code; it simply pulls the latest compiled Docker image.
 
 ## Persistent Data (Volumes) & Permissions
-Stateful bot data (such as counting games, invites, and tickets) are mapped to `/srv/csky-discord-bot/data` on the host. The application runs strictly as the host `csky` user, explicitly resolving the permission issues caused by Docker's root behavior. 
+Stateful bot data (such as counting games, invites, and tickets) are mapped to `../data` (deployed at `/srv/services/discord-bot/data` on the host). The application runs strictly as the host `csky` user, explicitly resolving the permission issues caused by Docker's root behavior. 
 
-By defining `PUID` and `PGID` in the `.env` file, the container inherits the exact permissions needed to read and write to the host's `/srv/csky-discord-bot` directory. Ephemeral data (`plugins/`, `license.key`) are explicitly written to the system's `/tmp` directory instead of the application directory, keeping the runtime container strictly read-only and stateless.
+By defining `PUID` and `PGID` in the `.env` file, the container inherits the exact permissions needed to read and write to the host's local data directory. Ephemeral data (`plugins/`, `license.key`) are explicitly written to the system's `/tmp` directory instead of the application directory, keeping the runtime container strictly read-only and stateless.
 
 ## Common Maintenance Tasks
 
@@ -65,20 +65,20 @@ By defining `PUID` and `PGID` in the `.env` file, the container inherits the exa
 The Docker container manages logs using the `json-file` driver. We limit the log size to 10MB per file with a maximum of 3 files to prevent disk exhaustion.
 To view logs on the VPS:
 ```bash
-cd /opt/csky-discord-bot/infra
+cd /srv/services/discord-bot/infra
 docker compose logs -f
 ```
 
 ### Restarting the Bot
 If the bot crashes or needs a manual restart (e.g., rate limits):
 ```bash
-cd /opt/csky-discord-bot/infra
+cd /srv/services/discord-bot/infra
 docker compose restart
 ```
 
 ## Rollback Procedure
 If a new update breaks the bot, you can rollback to a previous version using the Docker tags stored in GHCR:
-1. SSH into the VPS and navigate to `/opt/csky-discord-bot/infra`.
+1. SSH into the VPS and navigate to `/srv/services/discord-bot/infra`.
 2. Edit `docker-compose.yml` and change the image tag from `latest` to a specific short Git SHA (e.g., `image: ghcr.io/csky-developments/discord-bot:a1b2c3d`).
 3. Re-deploy the container:
    ```bash
