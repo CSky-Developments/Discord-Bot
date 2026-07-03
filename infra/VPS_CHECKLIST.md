@@ -8,6 +8,10 @@ Before this repository's automated deployment pipeline can succeed, the infrastr
 - [ ] **Docker Engine**: Installed and running (v20+).
 - [ ] **Docker Compose**: Installed (v2+ plugin).
 - [ ] **Architecture**: x86_64 or ARM64 (matching the Docker image architecture, GitHub Actions builds x86_64 by default).
+- [ ] **GHCR Authentication**: The VPS must be logged into the GitHub Container Registry (`ghcr.io`) using a GitHub Classic PAT with `read:packages` permissions.
+  ```bash
+  echo "YOUR_GITHUB_PAT" | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+  ```
 
 ## 2. Directory Structure
 - [ ] Ensure the deployment root directory exists and is writable by the deployment user:

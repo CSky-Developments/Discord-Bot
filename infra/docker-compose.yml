@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-    image: csky-discord-bot:latest
+    image: ghcr.io/csky-developments/discord-bot:${IMAGE_TAG:-latest}
     container_name: csky-bot
     restart: unless-stopped
     deploy:
@@ -18,5 +18,5 @@ services:
         max-file: "3"
     volumes:
       - ./data:/app/data
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
