@@ -2,43 +2,46 @@ package io.arsh.utils;
 
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import org.slf4j.LoggerFactory;
 
 public class Logger {
 
-    private static final String RED = "\u001B[31m";
-    private static final String YELLOW = "\u001B[33m";
-    private static final String RESET = "\u001B[0m";
-
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger("discord-bot");
     private static TextChannel logChannel = null;
 
     public static void setLogChannel(TextChannel channel) {
         logChannel = channel;
     }
 
-    public static String getTimeStamp() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        return "[" + LocalTime.now().format(formatter) + "]";
-    }
-
     public static void info(String message, boolean sendToDiscord) {
-        String log = getTimeStamp() + " [INFO] " + message.replace("`", "").replace("*", "");
-        System.out.println(RESET + log + RESET);
+        log.info(message.replace("`", "").replace("*", ""));
         if (sendToDiscord) sendToDiscord("**INFO** " + message);
     }
 
     public static void warn(String message, boolean sendToDiscord) {
-        String log = getTimeStamp() + " [WARN] " + message;
-        System.out.println(YELLOW + log + RESET);
+        log.warn(message);
         if (sendToDiscord) sendToDiscord("**WARN** " + message);
     }
 
     public static void error(String message, boolean sendToDiscord) {
-        String log = getTimeStamp() + " [ERROR] " + message;
-        System.out.println(RED + log + RESET);
+        log.error(message);
         if (sendToDiscord)  sendToDiscord("**ERROR** " + message);
+    }
+
+    public static void info(String message) {
+        log.info(message.replace("`", "").replace("*", ""));
+    }
+
+    public static void warn(String message) {
+        log.warn(message);
+    }
+
+    public static void error(String message) {
+        log.error(message);
+    }
+
+    public static void debug(String message) {
+        log.debug(message);
     }
 
     private static void sendToDiscord(String message) {

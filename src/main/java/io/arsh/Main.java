@@ -18,6 +18,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Main {
 
     private static JDA bot;
@@ -148,6 +152,12 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        File activeLog = new File("/app/logs/service.log");
+        if (activeLog.exists() && activeLog.length() > 0) {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date(activeLog.lastModified()));
+            activeLog.renameTo(new File("/app/logs/service-" + timestamp + ".log"));
+        }
+
         Logger.info("Starting...", false);
         Logger.info("Loading configuration...", false);
         Config.load();

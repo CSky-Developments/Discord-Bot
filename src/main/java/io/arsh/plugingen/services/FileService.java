@@ -2,7 +2,7 @@ package io.arsh.plugingen.services;
 
 import io.arsh.plugingen.models.Project;
 import io.arsh.plugingen.utils.Filter;
-import io.arsh.plugingen.utils.Logger;
+import io.arsh.utils.Logger;
 
 import java.io.IOException;
 import java.nio.file.*;

@@ -19,5 +19,6 @@ services:
         max-file: "3"
     volumes:
       - ../data:/app/data
+      - ../data/logs:/app/logs
     env_file:
       - .env

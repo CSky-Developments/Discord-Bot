@@ -1,7 +1,7 @@
 package io.arsh.plugingen.services;
 
 import com.google.genai.Client;
-import io.arsh.plugingen.utils.Logger;
+import io.arsh.utils.Logger;
 
 public class GeminiService {
 
