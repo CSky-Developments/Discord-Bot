@@ -71,14 +71,16 @@ public class RewardCommand extends Command {
 
             case "add":
                 Member memberToAdd = event.getOption("member").getAsMember();
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_REWARD)) {
+                String addCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (addCatId != null && addCatId.equalsIgnoreCase(Config.TICKET_REWARD)) {
                     ticketManager.handleTicketMemberAdd(event.getChannel().asTextChannel(), memberToAdd);
                     event.reply("> **Added " + memberToAdd.getAsMention() + " to reward ticket.**").queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;
 
             case "remove":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_REWARD)) {
+                String remCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (remCatId != null && remCatId.equalsIgnoreCase(Config.TICKET_REWARD)) {
                     Member memberToRemove = event.getOption("member").getAsMember();
                     ticketManager.handleTicketMemberRemove(event.getChannel().asTextChannel(), memberToRemove);
                     event.reply("> **Removed " + memberToRemove.getAsMention() + " from reward ticket.**").queue();
@@ -86,7 +88,8 @@ public class RewardCommand extends Command {
                 break;
 
             case "close":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_REWARD)) {
+                String closeCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (closeCatId != null && closeCatId.equalsIgnoreCase(Config.TICKET_REWARD)) {
                     event.replyEmbeds(TicketEmbeds.rewardCloseEmbed.build()).addComponents(TicketButtons.rewardCloseRow).queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;

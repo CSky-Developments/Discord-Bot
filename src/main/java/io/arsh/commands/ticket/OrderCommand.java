@@ -70,14 +70,16 @@ public class OrderCommand extends Command {
 
             case "add":
                 Member memberToAdd = event.getOption("member").getAsMember();
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_ORDER)) {
+                String addCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (addCatId != null && addCatId.equalsIgnoreCase(Config.TICKET_ORDER)) {
                     ticketManager.handleTicketMemberAdd(event.getChannel().asTextChannel(), memberToAdd);
                     event.reply("> **Added " + memberToAdd.getAsMention() + " to the order.**").queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;
 
             case "remove":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_ORDER)) {
+                String remCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (remCatId != null && remCatId.equalsIgnoreCase(Config.TICKET_ORDER)) {
                     Member memberToRemove = event.getOption("member").getAsMember();
                     ticketManager.handleTicketMemberRemove(event.getChannel().asTextChannel(), memberToRemove);
                     event.reply("> **Removed " + memberToRemove.getAsMention() + " from the order.**").queue();
@@ -85,7 +87,8 @@ public class OrderCommand extends Command {
                 break;
 
             case "close":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_ORDER)) {
+                String closeCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (closeCatId != null && closeCatId.equalsIgnoreCase(Config.TICKET_ORDER)) {
                     event.replyEmbeds(TicketEmbeds.orderCloseEmbed.build()).addComponents(TicketButtons.orderCloseRow).queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;

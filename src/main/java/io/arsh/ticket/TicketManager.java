@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,13 +78,20 @@ public class TicketManager extends ListenerAdapter {
         }
     }
 
-    public void saveTicketData() {
+    public synchronized void saveTicketData() {
         try {
             File parentDir = TICKET_DATA_FILE.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
                 parentDir.mkdirs();
             }
-            mapper.writerWithDefaultPrettyPrinter().writeValue(TICKET_DATA_FILE, ticketData);
+            File tempFile = new File(TICKET_DATA_FILE.getAbsolutePath() + ".tmp");
+            mapper.writerWithDefaultPrettyPrinter().writeValue(tempFile, ticketData);
+            java.nio.file.Files.move(
+                tempFile.toPath(),
+                TICKET_DATA_FILE.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE
+            );
         } catch (IOException ex) {
             Logger.info("An error occurred while saving ticket data. Error: " + ex.getMessage(), false);
         }
@@ -492,6 +500,7 @@ public class TicketManager extends ListenerAdapter {
         AtomicInteger filesProcessed = new AtomicInteger(0);
         AtomicInteger totalFiles = new AtomicInteger(0);
         AtomicInteger phaseNum = new AtomicInteger(0);
+        AtomicLong lastEditTime = new AtomicLong(0);
 
         builder.build(project, log -> {
             logBuffer.add(log);
@@ -582,7 +591,11 @@ public class TicketManager extends ListenerAdapter {
 
             genEmbed.addField("Console Output", "```ml\n" + logsDisplay + "```", false);
 
-            message.editMessageEmbeds(genEmbed.build()).queue();
+            long now = System.currentTimeMillis();
+            if (now - lastEditTime.get() >= 1500 || percent >= 100) {
+                lastEditTime.set(now);
+                message.editMessageEmbeds(genEmbed.build()).queue(null, failure -> {});
+            }
         });
 
         File releaseDir = project.getPath().resolve("releases").toFile();
@@ -803,7 +816,11 @@ public class TicketManager extends ListenerAdapter {
             orderedMessages.forEach(message -> {
                 ticketData.append(message.getTimeCreated().toInstant()).append(" ");
                 ticketData.append(message.getAuthor().getName()).append(": ");
-                ticketData.append(message.getContentRaw()).append("\n");
+                ticketData.append(message.getContentRaw());
+                if (!message.getAttachments().isEmpty()) {
+                    message.getAttachments().forEach(att -> ticketData.append(" [Attachment: ").append(att.getUrl()).append("]"));
+                }
+                ticketData.append("\n");
             });
 
             String fileName = "data/tickets/" + ticketName + "_" + channel.getId() + "_" + System.currentTimeMillis()
@@ -816,8 +833,14 @@ public class TicketManager extends ListenerAdapter {
                 writer.write(ticketData.toString());
                 Logger.info("Saved " + channel.getAsMention() + " messages to " + fileName, false);
 
+                TextChannel logChannel = guild.getTextChannelById(Config.LOG_CHANNEL_ID);
+                if (logChannel == null) {
+                    Logger.error("Ticket log channel not found or misconfigured (ID: " + Config.LOG_CHANNEL_ID + "). Skipping upload.", false);
+                    return CompletableFuture.completedFuture(null);
+                }
+
                 FileUpload fileUpload = FileUpload.fromData(file, file.getName());
-                return guild.getTextChannelById(Config.LOG_CHANNEL_ID)
+                return logChannel
                         .sendFiles(fileUpload)
                         .submit()
                         .thenRun(() -> Logger.info("Successfully sent ticket log to log channel: " + fileName, false))

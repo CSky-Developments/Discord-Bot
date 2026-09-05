@@ -69,7 +69,7 @@ public class LicenseCommand extends Command {
                         " can generate the license for " + pluginName + "!";
             }
 
-            event.reply(message).setEphemeral(true).queue();
+            event.getHook().sendMessage(message).setEphemeral(true).queue();
             return;
         }
 

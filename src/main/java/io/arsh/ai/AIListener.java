@@ -5,13 +5,14 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AIListener extends ListenerAdapter {
 
     private final AI ai;
-    private List<Channel> muteChannel = new ArrayList<>();
+    private final Set<String> mutedChannelIds = ConcurrentHashMap.newKeySet();
 
     public AIListener(AI ai) {
         this.ai = ai;
@@ -22,22 +23,29 @@ public class AIListener extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
         String parentId = event.getChannel().asTextChannel().getParentCategoryId();
         if (parentId.equals(Config.TICKET_NORMAL)) {
+            String channelId = event.getChannel().getId();
             if (event.getMessage().getContentRaw().contains("c!")) {
-                if (!muteChannel.contains(event.getChannel())) {
-                    muteChannel.add(event.getChannel());
+                if (!mutedChannelIds.contains(channelId)) {
+                    mutedChannelIds.add(channelId);
                     event.getMessage().reply("> **AI muted!**").queue();
                 } else {
-                    muteChannel.remove(event.getChannel());
+                    mutedChannelIds.remove(channelId);
                     event.getMessage().reply("> **AI unmuted!**").queue();
                 }
                 return;
             }
-            if (muteChannel.contains(event.getChannel())) return;
-            String response = ai.getResponse(event.getAuthor().getName(), event.getMessage().getContentRaw());
-            if (response != null) {
-                event.getMessage().reply(response).queue();
-                event.getChannel().sendTyping().queue();
-            }
+            if (mutedChannelIds.contains(channelId)) return;
+
+            event.getChannel().sendTyping().queue();
+            String authorName = event.getAuthor().getName();
+            String prompt = event.getMessage().getContentRaw();
+
+            CompletableFuture.supplyAsync(() -> ai.getResponse(authorName, prompt))
+                .thenAccept(response -> {
+                    if (response != null && !response.isBlank()) {
+                        event.getMessage().reply(response).queue(null, failure -> {});
+                    }
+                });
         }
     }
 }

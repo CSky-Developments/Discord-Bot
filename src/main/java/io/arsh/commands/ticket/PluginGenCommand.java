@@ -74,7 +74,7 @@ public class PluginGenCommand extends Command {
 
         switch (sub) {
             case "generate":
-                event.getChannel().asTextChannel().sendMessageEmbeds(TicketEmbeds.pluginGenEmbed.build())
+                event.replyEmbeds(TicketEmbeds.pluginGenEmbed.build())
                         .addComponents(TicketButtons.pluginGenerateRow)
                         .queue();
                 break;

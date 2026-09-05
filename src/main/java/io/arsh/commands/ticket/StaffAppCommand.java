@@ -56,7 +56,8 @@ public class StaffAppCommand extends Command {
                  break;
 
             case "close":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_STAFF_APP)) {
+                String closeCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (closeCatId != null && closeCatId.equalsIgnoreCase(Config.TICKET_STAFF_APP)) {
                     event.replyEmbeds(TicketEmbeds.staffAppCloseEmbed.build()).addComponents(TicketButtons.appDeleteRow).queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;

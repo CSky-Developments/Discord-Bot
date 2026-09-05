@@ -71,14 +71,16 @@ public class TicketCommand extends Command {
 
             case "add":
                 Member memberToAdd = event.getOption("member").getAsMember();
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_NORMAL)) {
+                String addCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (addCatId != null && addCatId.equalsIgnoreCase(Config.TICKET_NORMAL)) {
                     ticketManager.handleTicketMemberAdd(event.getChannel().asTextChannel(), memberToAdd);
                     event.reply("> **Added " + memberToAdd.getAsMention() + " to the ticket.**").queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;
 
             case "remove":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_NORMAL)) {
+                String remCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (remCatId != null && remCatId.equalsIgnoreCase(Config.TICKET_NORMAL)) {
                     Member memberToRemove = event.getOption("member").getAsMember();
                     ticketManager.handleTicketMemberRemove(event.getChannel().asTextChannel(), memberToRemove);
                     event.reply("> **Removed " + memberToRemove.getAsMention() + " from the ticket.**").queue();
@@ -86,7 +88,8 @@ public class TicketCommand extends Command {
                 break;
 
             case "close":
-                if (event.getChannel().asTextChannel().getParentCategoryId().equalsIgnoreCase(Config.TICKET_NORMAL)) {
+                String closeCatId = event.getChannel().asTextChannel().getParentCategoryId();
+                if (closeCatId != null && closeCatId.equalsIgnoreCase(Config.TICKET_NORMAL)) {
                     event.replyEmbeds(TicketEmbeds.ticketCloseEmbed.build()).addComponents(TicketButtons.ticketCloseRow).queue();
                 } else event.reply("> **🚫 You can't use this command here!**").setEphemeral(true).queue(success -> success.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 break;

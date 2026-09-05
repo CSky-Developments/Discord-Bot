@@ -63,11 +63,22 @@ public class InviteManager {
         }
     }
 
-    public void saveInviteRecords() {
+    public synchronized void saveInviteRecords() {
         try {
-            mapper.writeValue(recordFile, inviteRecords);
+            File parent = recordFile.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+            File tempFile = new File(recordFile.getAbsolutePath() + ".tmp");
+            mapper.writeValue(tempFile, inviteRecords);
+            java.nio.file.Files.move(
+                tempFile.toPath(),
+                recordFile.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE
+            );
         } catch (IOException ex) {
-            Logger.error(ex.getMessage(), false);
+            Logger.error("Failed to save invite records: " + ex.getMessage(), false);
         }
     }
 

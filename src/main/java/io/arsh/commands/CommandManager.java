@@ -60,8 +60,20 @@ public class CommandManager extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         Command command = commandMap.get(event.getName());
         if (command != null) {
+            try {
                 command.execute(event);
                 Logger.info(event.getUser().getAsMention() + " executed command /" + command.getName(), false);
+            } catch (Exception ex) {
+                Logger.error("Command execution error for /" + command.getName() + ": " + ex.getMessage(), true);
+                ex.printStackTrace();
+                try {
+                    if (!event.isAcknowledged()) {
+                        event.reply("❌ An internal error occurred while executing this command.").setEphemeral(true).queue();
+                    } else {
+                        event.getHook().sendMessage("❌ An internal error occurred while executing this command.").setEphemeral(true).queue();
+                    }
+                } catch (Exception ignored) {}
+            }
         } else {
             event.reply("Unknown command.").setEphemeral(true).queue();
             Logger.error("Unknown command executed: /" + event.getName(), true);

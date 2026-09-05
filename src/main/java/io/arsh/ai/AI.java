@@ -9,12 +9,16 @@ import java.util.*;
 
 public class AI {
     private static Client client = null;
-    private static final Map<String, Deque<String>> aiMemory = new HashMap<>();
+    private static final Map<String, Deque<String>> aiMemory = new java.util.concurrent.ConcurrentHashMap<>();
 
     public AI() {
         Logger.info("Initializing supporter AI...", false);
-        client = new Client.Builder().apiKey(Config.AI_KEY).build();
-        Logger.info("Successfully initialized supporter AI!", false);
+        try {
+            client = new Client.Builder().apiKey(Config.AI_KEY).build();
+            Logger.info("Successfully initialized supporter AI!", false);
+        } catch (Exception ex) {
+            Logger.error("Failed to initialize Gemini client: " + ex.getMessage(), false);
+        }
     }
 
     private final String systemPrompt = """
@@ -124,22 +128,44 @@ public class AI {
 
 
     public String getResponse(String prompter, String prompt) {
-        aiMemory.putIfAbsent(prompter, new LinkedList<>());
-        Deque<String> memory = aiMemory.get(prompter);
-        memory.addLast("User: " + prompt);
-        while (memory.size() > 10) {
-            memory.remove();
+        if (client == null) return null;
+
+        if (aiMemory.size() > 500) {
+            aiMemory.clear();
         }
+
+        Deque<String> memory = aiMemory.computeIfAbsent(prompter, k -> new LinkedList<>());
+        synchronized (memory) {
+            memory.addLast("User: " + prompt);
+            while (memory.size() > 10) {
+                memory.removeFirst();
+            }
+        }
+
         StringBuilder fullPrompt = new StringBuilder(systemPrompt);
-        for (String entry : memory) {
-            fullPrompt.append("\n").append(entry);
+        synchronized (memory) {
+            for (String entry : memory) {
+                fullPrompt.append("\n").append(entry);
+            }
         }
-        GenerateContentResponse response = client.models.generateContent("gemini-2.5-flash", fullPrompt.toString(), null);
-        String reply = response.text().trim();
-        if (reply.contains("~")) {
+
+        try {
+            GenerateContentResponse response = client.models.generateContent("gemini-2.5-flash", fullPrompt.toString(), null);
+            if (response == null || response.text() == null) return null;
+            String reply = response.text().trim();
+            if (reply.contains("~")) {
+                return null;
+            }
+            synchronized (memory) {
+                memory.addLast("You: " + reply);
+                while (memory.size() > 10) {
+                    memory.removeFirst();
+                }
+            }
+            return reply;
+        } catch (Exception ex) {
+            Logger.error("Gemini AI generation failed: " + ex.getMessage(), false);
             return null;
         }
-        memory.addLast("You: " + reply);
-        return reply;
     }
 }
