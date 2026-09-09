@@ -93,28 +93,29 @@ public class LicenseCommand extends Command {
             return;
         }
 
-        File licenseFile;
-        try {
-            Logger.info("Starting license file generation...", true);
-            licenseFile = generateLicenseFile(license, ip, port, uuid);
-        } catch (Exception e) {
-            Logger.error("License generation failed: " + e.getMessage(), true);
-            e.printStackTrace();
-            event.getHook().sendMessage("⚠️ Failed to generate license. Check server logs for details.").setEphemeral(true).queue();
-            return;
-        }
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            File licenseFile;
+            try {
+                Logger.info("Starting license file generation...", true);
+                licenseFile = generateLicenseFile(license, ip, port, uuid);
+            } catch (Exception e) {
+                Logger.error("License generation failed: " + e.getMessage(), true);
+                event.getHook().sendMessage("⚠️ Failed to generate license. Check server logs for details.").setEphemeral(true).queue();
+                return;
+            }
 
-        if (licenseFile != null && licenseFile.exists()) {
-            Logger.info(String.format("License generated successfully for %s (%s)", pluginName, uuid), true);
-            event.getHook()
-                    .sendMessage("✅ License successfully generated for **" + pluginName + "**!")
-                    .addFiles(FileUpload.fromData(licenseFile))
-                    .setEphemeral(false)
-                    .queue();
-        } else {
-            Logger.error("License file not found after generation process.", true);
-            event.getHook().sendMessage("❌ Something went wrong while generating the license file. Please check the console.").setEphemeral(true).queue();
-        }
+            if (licenseFile != null && licenseFile.exists()) {
+                Logger.info(String.format("License generated successfully for %s (%s)", pluginName, uuid), true);
+                event.getHook()
+                        .sendMessage("✅ License successfully generated for **" + pluginName + "**!")
+                        .addFiles(FileUpload.fromData(licenseFile))
+                        .setEphemeral(false)
+                        .queue();
+            } else {
+                Logger.error("License file not found after generation process.", true);
+                event.getHook().sendMessage("❌ Something went wrong while generating the license file. Please check the console.").setEphemeral(true).queue();
+            }
+        });
     }
 
     private File generateLicenseFile(License license, String ip, int port, String uuid) throws Exception {
