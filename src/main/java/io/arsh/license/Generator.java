@@ -3,6 +3,7 @@ package io.arsh.license;
 import io.arsh.license.models.License;
 import io.arsh.license.utils.AESEncrypter;
 import io.arsh.license.utils.KeyGenerator;
+import io.arsh.utils.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,7 +32,7 @@ public class Generator {
             );
             return writeLicenseFile(encrypted);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Logger.error("Failed to generate license file: " + ex.getMessage(), true);
         }
         return null;
     }

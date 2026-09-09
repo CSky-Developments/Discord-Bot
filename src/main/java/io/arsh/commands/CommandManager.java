@@ -65,7 +65,6 @@ public class CommandManager extends ListenerAdapter {
                 Logger.info(event.getUser().getAsMention() + " executed command /" + command.getName(), false);
             } catch (Exception ex) {
                 Logger.error("Command execution error for /" + command.getName() + ": " + ex.getMessage(), true);
-                ex.printStackTrace();
                 try {
                     if (!event.isAcknowledged()) {
                         event.reply("❌ An internal error occurred while executing this command.").setEphemeral(true).queue();

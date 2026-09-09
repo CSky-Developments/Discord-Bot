@@ -609,7 +609,7 @@ public class TicketManager extends ListenerAdapter {
                 writer.println(l);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Logger.error("Failed to write build log file: " + ex.getMessage(), false);
         }
 
         if (jarFiles != null && jarFiles.length > 0) {

@@ -133,7 +133,7 @@ public class BuildService {
 
             return new BuildResult(jar, List.of());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Logger.error("Build packaging exception: " + ex.getMessage());
             return new BuildResult(null, List.of("System Error: " + ex.getMessage()));
         }
     }
