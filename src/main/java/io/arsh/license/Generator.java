@@ -20,7 +20,7 @@ public class Generator {
             "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
     );
 
-    private static File getLicenseFile(License license, String ip, int port, String uuid) {
+    public static File getLicenseFile(License license, String ip, int port, String uuid) {
         try {
             String plainLicense = KeyGenerator.generateKey(
                     license.getLicenseData().getSALT(), ip, port, uuid
@@ -30,15 +30,17 @@ public class Generator {
                     license.getLicenseData().getAES_IV(),
                     plainLicense
             );
-            return writeLicenseFile(encrypted);
+            return writeLicenseFile(encrypted, uuid);
         } catch (Exception ex) {
             Logger.error("Failed to generate license file: " + ex.getMessage(), true);
         }
         return null;
     }
 
-    private static File writeLicenseFile(String encrypted) throws IOException {
-        File file = new File(System.getProperty("java.io.tmpdir"), "license.key");
+    private static File writeLicenseFile(String encrypted, String uuid) throws IOException {
+        String prefix = "license-" + (uuid != null && !uuid.isEmpty() ? uuid.substring(0, Math.min(uuid.length(), 8)) : "key") + "-";
+        File file = File.createTempFile(prefix, ".key");
+        file.deleteOnExit();
         try (FileWriter writer = new FileWriter(file)) {
             writer.write("-----BEGIN LICENSE KEY-----\n");
             writer.write(encrypted + "\n");

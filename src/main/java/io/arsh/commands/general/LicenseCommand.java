@@ -118,10 +118,8 @@ public class LicenseCommand extends Command {
         });
     }
 
-    private File generateLicenseFile(License license, String ip, int port, String uuid) throws Exception {
-        var method = Generator.class.getDeclaredMethod("getLicenseFile", License.class, String.class, int.class, String.class);
-        method.setAccessible(true);
-        return (File) method.invoke(null, license, ip, port, uuid);
+    private File generateLicenseFile(License license, String ip, int port, String uuid) {
+        return Generator.getLicenseFile(license, ip, port, uuid);
     }
 }
 
