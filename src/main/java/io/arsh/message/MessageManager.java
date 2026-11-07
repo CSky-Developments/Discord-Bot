@@ -3,7 +3,6 @@ package io.arsh.message;
 import io.arsh.utils.Config;
 import io.arsh.utils.Logger;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
@@ -38,14 +37,14 @@ public class MessageManager extends ListenerAdapter {
 
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
-        TextChannel textChannel = event.getChannel().asTextChannel();
+        String channelName = event.getChannel().getName();
         MessageEntry cachedEntry = messageCache.get(event.getMessageId());
         if (cachedEntry != null) {
             String content = cachedEntry.content;
             String authorName = event.getGuild().getMemberById(cachedEntry.authorId).getUser().getName();
             String logMessage = String.format("Messages of `%s` was deleted in `%s`: ```Content: %s```",
                     authorName,
-                    textChannel.getName(),
+                    channelName,
                     content);
             messageCache.remove(event.getMessageId());
             messageOrder.remove(event.getMessageId());
@@ -55,7 +54,7 @@ public class MessageManager extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        TextChannel textChannel = event.getChannel().asTextChannel();
+        String channelName = event.getChannel().getName();
         Message updatedMessage = event.getMessage();
         if (updatedMessage.getContentRaw().isEmpty()) return;
         String newContent = updatedMessage.getContentRaw();
@@ -65,7 +64,7 @@ public class MessageManager extends ListenerAdapter {
             String authorMention = event.getAuthor().getName();
             String logMessage = String.format("`%s` edited their message in `%s`: ```Original: %s``` ```Edited: %s```",
                     authorMention,
-                    textChannel.getName(),
+                    channelName,
                     oldContent,
                     newContent);
             messageCache.put(event.getMessageId(), new MessageEntry(newContent, cachedEntry.authorId, System.currentTimeMillis()));
