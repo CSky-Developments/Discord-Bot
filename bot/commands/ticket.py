@@ -18,7 +18,7 @@ def make_no_permission_embed() -> discord.Embed:
     return embed
 
 def setup_ticket_command(tree: app_commands.CommandTree, guild: discord.Object, ticket_manager: TicketManager):
-    ticket_group = app_commands.Group(name="ticket", description="Create a new support ticket.", guild=guild)
+    ticket_group = app_commands.Group(name="ticket", description="Create a new support ticket.")
 
     @ticket_group.command(name="create", description="Create a new support ticket")
     async def ticket_create(interaction: discord.Interaction):

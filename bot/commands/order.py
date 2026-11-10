@@ -7,7 +7,7 @@ from bot.ticket.manager import TicketManager
 from bot.commands.ticket import is_staff, make_no_permission_embed
 
 def setup_order_command(tree: app_commands.CommandTree, guild: discord.Object, ticket_manager: TicketManager):
-    order_group = app_commands.Group(name="order", description="To place a new order.", guild=guild)
+    order_group = app_commands.Group(name="order", description="To place a new order.")
 
     @order_group.command(name="create", description="To place a new order.")
     async def order_create(interaction: discord.Interaction):

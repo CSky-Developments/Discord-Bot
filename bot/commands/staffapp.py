@@ -6,7 +6,7 @@ from bot.embeds import ticket_embeds
 from bot.commands.ticket import is_staff, make_no_permission_embed
 
 def setup_staffapp_command(tree: app_commands.CommandTree, guild: discord.Object):
-    staffapp_group = app_commands.Group(name="staffapp", description="Create a staff application.", guild=guild)
+    staffapp_group = app_commands.Group(name="staffapp", description="Create a staff application.")
 
     @staffapp_group.command(name="apply", description="Create a staff application.")
     async def staffapp_apply(interaction: discord.Interaction):

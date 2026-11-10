@@ -6,7 +6,7 @@ from bot.logger import BotLogger
 from bot.invite.manager import InviteManager
 
 def setup_invite_command(tree: app_commands.CommandTree, guild: discord.Object, invite_manager: InviteManager):
-    invite_group = app_commands.Group(name="invite", description="Use to get your invites.", guild=guild)
+    invite_group = app_commands.Group(name="invite", description="Use to get your invites.")
 
     @invite_group.command(name="count", description="Get the number of invites for a member.")
     @app_commands.describe(member="Select member to get their invites.")

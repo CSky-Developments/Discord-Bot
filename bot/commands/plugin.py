@@ -7,7 +7,7 @@ from bot.ticket.manager import TicketManager
 from bot.commands.ticket import is_staff, make_no_permission_embed
 
 def setup_plugin_command(tree: app_commands.CommandTree, guild: discord.Object, ticket_manager: TicketManager):
-    plugin_group = app_commands.Group(name="plugin", description="Manage plugin generation requests.", guild=guild)
+    plugin_group = app_commands.Group(name="plugin", description="Manage plugin generation requests.")
 
     @plugin_group.command(name="generate", description="Start a new plugin generation request")
     async def plugin_generate(interaction: discord.Interaction):

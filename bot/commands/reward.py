@@ -7,7 +7,7 @@ from bot.ticket.manager import TicketManager
 from bot.commands.ticket import is_staff, make_no_permission_embed
 
 def setup_reward_command(tree: app_commands.CommandTree, guild: discord.Object, ticket_manager: TicketManager):
-    reward_group = app_commands.Group(name="reward", description="Use to claim your reward.", guild=guild)
+    reward_group = app_commands.Group(name="reward", description="Use to claim your reward.")
 
     @reward_group.command(name="claim", description="Use to claim your reward.")
     async def reward_claim(interaction: discord.Interaction):
