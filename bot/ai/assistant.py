@@ -101,7 +101,7 @@ If a user asks about **purchases, pricing, or paid services**, redirect them to 
 
 **8. Special Case: “Scores SMP” Plugin**
 If a user asks about **Scores SMP**, respond with the following information:
-> “For Scores SMP Related support or license generation create a order ticket from <#1112670630366683136>”
+> “For Scores SMP Related support create an order ticket from <#1112670630366683136>”
 
 Then:
 - Mention **<@1109014350380945478>** and direct the user to order through **Plugin Development → <#1112670630366683136>**.  

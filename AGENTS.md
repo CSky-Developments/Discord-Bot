@@ -1,12 +1,11 @@
 # Project Overview
 
-- **Purpose of the project**: A custom Discord bot built for "CSky Developments" that manages tickets, invites, counting minigames, license generation, and AI-assisted plugin generation.
-- **High-level architecture**: A monolithic Java application leveraging the JDA (Java Discord API). Event listeners are modularized by feature (e.g., TicketManager, InviteTracker, AIListener). Configuration is driven by a `config.yml` file.
+- **Purpose of the project**: A custom Discord bot built for "CSky Developments" that manages tickets, invites, counting minigames, and AI-assisted plugin generation.
+- **High-level architecture**: A monolithic Discord application leveraging discord.py. Event listeners are modularized by feature (e.g., TicketManager, InviteTracker, AIListener). Configuration is driven by environment variables and a fallback config.yml.
 - **Technology stack**: 
   - Python 3.12+
   - discord.py 2.4+ (Discord API wrapper)
   - Google GenAI SDK (google-genai 1.0+)
-  - Cryptography 42.0+ (AES-128-CBC encryption parity)
   - PyYAML 6.0+
   - OpenJDK 21 headless (for runtime Spigot plugin builds via javac)
 
@@ -21,7 +20,6 @@
   - `embeds/` - Discord Embed templates with exact colors, fields, and footers.
   - `game/` - Minigames like Counting with atomic JSON persistence.
   - `invite/` - Tracks user invites and persistence.
-  - `license/` - AES-encrypted license generation with key generation parity.
   - `message/` - Message caching and audit logging.
   - `plugingen/` - AI-powered plugin generator workflow, invoking Gemini and build services.
   - `ticket/` - Support ticket management.
@@ -91,3 +89,4 @@
 
 - **2026-07-03**: Initialized `AGENTS.md`. Established AI maintenance protocol. Removed leaked Discord tokens from `config.yml`.
 - **2026-11-10**: Translated entire core application from Java to Python (`discord.py`) with 100% functional, cryptographic, and data parity. Implemented comprehensive test suite with 23 pytest tests. Updated Dockerfile to Python 3.12 + OpenJDK 21 headless.
+- **2026-11-10**: Completely removed legacy license system, AES crypto modules, license slash command, and associated configs across codebase.

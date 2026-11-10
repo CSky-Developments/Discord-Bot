@@ -10,7 +10,6 @@ from bot.commands.order import setup_order_command
 from bot.commands.plugin import setup_plugin_command
 from bot.commands.reward import setup_reward_command
 from bot.commands.staffapp import setup_staffapp_command
-from bot.commands.license import setup_license_command
 from unittest.mock import MagicMock
 
 def test_all_commands_registration():
@@ -29,7 +28,6 @@ def test_all_commands_registration():
     setup_plugin_command(tree, guild_target, ticket_mgr)
     setup_reward_command(tree, guild_target, ticket_mgr)
     setup_staffapp_command(tree, guild_target)
-    setup_license_command(tree, guild_target)
 
     commands = tree.get_commands(guild=guild_target)
     command_names = [cmd.name for cmd in commands]
@@ -42,4 +40,4 @@ def test_all_commands_registration():
     assert "plugin" in command_names
     assert "reward" in command_names
     assert "staffapp" in command_names
-    assert "license" in command_names
+    assert "license" not in command_names

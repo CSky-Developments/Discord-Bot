@@ -21,10 +21,6 @@ Ticket-Reward-Category: "1118943418597515355"
 Ticket-Normal-Category: "1112389077547896842"
 Ticket-Staff-App-Category: "1117767193933905921"
 Support-Category-ID: "1112388539083128933"
-License-Gen-Access-IDs:
-  - "793030841449840641"
-  - "648009919303254026"
-  - "1109014350380945478"
 """, encoding="utf-8")
 
     Config.load(str(yaml_file))
@@ -45,12 +41,10 @@ License-Gen-Access-IDs:
     assert Config.TICKET_STAFF_APP == 1117767193933905921
     assert Config.SUPPORT_CATEGORY_ID == 1112388539083128933
     assert Config.PLUGIN_GEN_ACCESS_ROLE_ID == 1459133869977632848
-    assert Config.LICENSE_GEN_ACCESS_ID_LIST == ["793030841449840641", "648009919303254026", "1109014350380945478"]
 
 def test_config_env_override(tmp_path, monkeypatch):
     monkeypatch.setenv("DISCORD_TOKEN", "OVERRIDDEN_TOKEN")
     monkeypatch.setenv("GUILD_ID", "999888777")
-    monkeypatch.setenv("LICENSE_GEN_ACCESS_IDS", "user1,user2")
 
     yaml_file = tmp_path / "config.yml"
     yaml_file.write_text("""
@@ -70,12 +64,9 @@ Ticket-Reward-Category: "1118943418597515355"
 Ticket-Normal-Category: "1112389077547896842"
 Ticket-Staff-App-Category: "1117767193933905921"
 Support-Category-ID: "1112388539083128933"
-License-Gen-Access-IDs:
-  - "yaml_user"
 """, encoding="utf-8")
 
     Config.load(str(yaml_file))
 
     assert Config.TOKEN == "OVERRIDDEN_TOKEN"
     assert Config.GUILD_ID == 999888777
-    assert Config.LICENSE_GEN_ACCESS_ID_LIST == ["user1", "user2"]

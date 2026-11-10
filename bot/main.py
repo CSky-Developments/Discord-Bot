@@ -15,7 +15,6 @@ from bot.ai.assistant import SupportAI
 from bot.ai.listener import AIListener
 from bot.commands import (
     setup_ping_command,
-    setup_license_command,
     setup_invite_command,
     setup_ticket_command,
     setup_order_command,
@@ -134,7 +133,6 @@ class CSkyBot(discord.Client):
             setup_plugin_command(self.tree, guild_target, self.ticket_manager)
             setup_reward_command(self.tree, guild_target, self.ticket_manager)
             setup_staffapp_command(self.tree, guild_target)
-            setup_license_command(self.tree, guild_target)
 
             synced = await self.tree.sync(guild=guild_target)
             BotLogger.info(f"Successfully registered {len(synced)} commands for guild {self.guild_obj.name}", False)

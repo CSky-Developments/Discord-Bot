@@ -22,7 +22,6 @@ class Config:
     SUPPORT_CATEGORY_ID: int = 0
 
     PLUGIN_GEN_ACCESS_ROLE_ID: int = 0
-    LICENSE_GEN_ACCESS_ID_LIST: List[str] = []
 
     @classmethod
     def load(cls, config_path: Optional[str] = None):
@@ -60,7 +59,6 @@ class Config:
         cls.TICKET_REWARD = cls._get_int(data, "Ticket-Reward-Category", "TICKET_REWARD_CATEGORY")
         cls.TICKET_STAFF_APP = cls._get_int(data, "Ticket-Staff-App-Category", "TICKET_STAFF_APP_CATEGORY")
         cls.PLUGIN_GEN_ACCESS_ROLE_ID = cls._get_int(data, "Plugin-Gen-Access-Role-ID", "PLUGIN_GEN_ACCESS_ROLE_ID", required=False)
-        cls.LICENSE_GEN_ACCESS_ID_LIST = cls._get_list(data, "License-Gen-Access-IDs", "LICENSE_GEN_ACCESS_IDS")
 
     @classmethod
     def _get_str(cls, data: Optional[Dict[str, Any]], yaml_key: str, env_key: str, required: bool = True) -> str:
