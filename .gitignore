@@ -1,11 +1,8 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
 data
 *.key
 *.yml
+!config.example.yml
+!docker-compose.yml
 
 ### Python ###
 .venv/
@@ -14,9 +11,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
-libs/
 logs/
-TestCrypto.*
+.coverage
+htmlcov/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

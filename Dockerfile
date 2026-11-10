@@ -17,6 +17,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY bot/ ./bot/
-COPY src/main/resources/config.yml ./config.yml
+COPY config.example.yml ./config.yml
 
 CMD ["python", "-m", "bot.main"]

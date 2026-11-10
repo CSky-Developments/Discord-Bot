@@ -30,7 +30,7 @@ class Config:
         search_paths = [
             config_path,
             "config.yml",
-            "src/main/resources/config.yml",
+            "config.example.yml",
             "/app/config.yml",
         ]
 
