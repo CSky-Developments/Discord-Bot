@@ -1,6 +1,6 @@
 # Deployment
 
-The Discord Bot is deployed via a CI/CD pipeline using GitHub Actions, packaging the Java application into a Docker container.
+The Discord Bot is deployed via a CI/CD pipeline using GitHub Actions, packaging the Python application (with OpenJDK 21 headless for runtime plugin compilation) into a Docker container.
 
 ## CSky Deployment Standards
 

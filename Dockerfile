@@ -1,16 +1,21 @@
-# Stage 1: Build the JAR
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
+FROM python:3.12-slim-bookworm
 
-# Stage 2: Run the Bot
-FROM eclipse-temurin:21-jre-alpine
+# Install OpenJDK 21 headless for runtime plugin compilation via javac
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openjdk-21-jdk-headless ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-COPY --from=builder /app/target/arsh-1.0-SNAPSHOT.jar app.jar
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TMPDIR=/tmp \
+    HOME=/tmp
 
-# Setting sensible JVM resource limits for a Discord bot
-ENTRYPOINT ["java", "-XX:+UseZGC", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY bot/ ./bot/
+COPY src/main/resources/config.yml ./config.yml
+
+CMD ["python", "-m", "bot.main"]

@@ -7,6 +7,17 @@ data
 *.key
 *.yml
 
+### Python ###
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+libs/
+logs/
+TestCrypto.*
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

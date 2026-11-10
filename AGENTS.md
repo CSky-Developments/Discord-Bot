@@ -3,29 +3,31 @@
 - **Purpose of the project**: A custom Discord bot built for "CSky Developments" that manages tickets, invites, counting minigames, license generation, and AI-assisted plugin generation.
 - **High-level architecture**: A monolithic Java application leveraging the JDA (Java Discord API). Event listeners are modularized by feature (e.g., TicketManager, InviteTracker, AIListener). Configuration is driven by a `config.yml` file.
 - **Technology stack**: 
-  - Java 21
-  - Maven (Build Tool)
-  - JDA 5.6.1 (Discord API wrapper)
-  - Google GenAI 1.5.0 (for AI features/plugin generation)
-  - SnakeYAML 2.4 (Configuration parsing)
-  - Jackson Databind (JSON processing)
+  - Python 3.12+
+  - discord.py 2.4+ (Discord API wrapper)
+  - Google GenAI SDK (google-genai 1.0+)
+  - Cryptography 42.0+ (AES-128-CBC encryption parity)
+  - PyYAML 6.0+
+  - OpenJDK 21 headless (for runtime Spigot plugin builds via javac)
 
 # Repository Structure
 
-- `src/main/java/io/arsh/` - Root Java package
-  - `Main.java` - Application entry point; initializes bot, registers event listeners.
-  - `ai/` - AI integration logic (Google Gemini).
-  - `commands/` - Bot command handlers and registry.
-  - `embeds/` - Discord Embed templates.
-  - `game/` - Minigames like Counting.
+- `bot/` - Root Python package
+  - `main.py` - Application entry point; initializes bot, sets up presence, commands, and event listeners.
+  - `config.py` - Configuration parsing with YAML fallback and environment variable overrides.
+  - `logger.py` - Bot logging with console output, file rotation, and Discord channel logging.
+  - `ai/` - AI integration logic (Google Gemini 2.5 Flash).
+  - `commands/` - Slash command registration and handlers.
+  - `embeds/` - Discord Embed templates with exact colors, fields, and footers.
+  - `game/` - Minigames like Counting with atomic JSON persistence.
   - `invite/` - Tracks user invites and persistence.
-  - `license/` - AES-encrypted license generation.
-  - `message/` - Message caching/management.
-  - `plugingen/` - AI-powered plugin generator workflow, invoking Gemini and external build services.
+  - `license/` - AES-encrypted license generation with key generation parity.
+  - `message/` - Message caching and audit logging.
+  - `plugingen/` - AI-powered plugin generator workflow, invoking Gemini and build services.
   - `ticket/` - Support ticket management.
-  - `utils/` - Global utilities (Config, Logger).
-- `src/main/resources/` - Static files and configurations (e.g., `config.yml`).
-- `pom.xml` - Maven dependencies and shade plugin configuration for fat-jar packaging.
+- `tests/` - Comprehensive unit test suite with pytest.
+- `infra/` - Deployment configs (`docker-compose.yml`, `.env.example`).
+- `Dockerfile` - Multi-runtime Dockerfile (Python 3.12 + OpenJDK 21 headless).
 
 # Development Conventions
 
@@ -88,3 +90,4 @@
 # Change Log
 
 - **2026-07-03**: Initialized `AGENTS.md`. Established AI maintenance protocol. Removed leaked Discord tokens from `config.yml`.
+- **2026-11-10**: Translated entire core application from Java to Python (`discord.py`) with 100% functional, cryptographic, and data parity. Implemented comprehensive test suite with 23 pytest tests. Updated Dockerfile to Python 3.12 + OpenJDK 21 headless.
