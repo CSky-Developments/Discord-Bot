@@ -17,7 +17,6 @@ class Config:
     TICKET_PLUGIN_GEN: int = 0
     TICKET_REWARD: int = 0
     TICKET_STAFF_APP: int = 0
-    AI_KEY: str = ""
     TICKET_CHANNEL_ID: int = 0
     SUPPORT_CATEGORY_ID: int = 0
 
@@ -50,7 +49,6 @@ class Config:
         cls.COUNTING_CHANNEL_ID = cls._get_int(data, "Counting-Channel-ID", "COUNTING_CHANNEL_ID")
         cls.STAFF_ROLE_ID = cls._get_int(data, "Staff-Role-ID", "STAFF_ROLE_ID")
         cls.MEMBER_ROLE_ID = cls._get_int(data, "Member-Role-ID", "MEMBER_ROLE_ID")
-        cls.AI_KEY = cls._get_str(data, "AI-Key", "AI_KEY", required=False) or ""
         cls.SUPPORT_CATEGORY_ID = cls._get_int(data, "Support-Category-ID", "SUPPORT_CATEGORY_ID", required=False)
         cls.TICKET_CHANNEL_ID = cls._get_int(data, "Ticket-Channel-ID", "TICKET_CHANNEL_ID", required=False)
         cls.TICKET_NORMAL = cls._get_int(data, "Ticket-Normal-Category", "TICKET_NORMAL_CATEGORY")

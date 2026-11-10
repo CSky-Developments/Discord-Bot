@@ -1,7 +1,7 @@
 # Project Overview
 
 - **Purpose of the project**: A custom Discord bot built for "CSky Developments" that manages tickets, invites, counting minigames, and AI-assisted plugin generation.
-- **High-level architecture**: A monolithic Discord application leveraging discord.py. Event listeners are modularized by feature (e.g., TicketManager, InviteTracker, AIListener). Configuration is driven by environment variables and a fallback config.yml.
+- **High-level architecture**: A monolithic Discord application leveraging discord.py. Event listeners are modularized by feature (e.g., TicketManager, InviteTracker). Configuration is driven by environment variables and a fallback config.yml.
 - **Technology stack**: 
   - Python 3.12+
   - discord.py 2.4+ (Discord API wrapper)
@@ -15,7 +15,6 @@
   - `main.py` - Application entry point; initializes bot, sets up presence, commands, and event listeners.
   - `config.py` - Configuration parsing with YAML fallback and environment variable overrides.
   - `logger.py` - Bot logging with console output, file rotation, and Discord channel logging.
-  - `ai/` - AI integration logic (Google Gemini 2.5 Flash).
   - `commands/` - Slash command registration and handlers.
   - `embeds/` - Discord Embed templates with exact colors, fields, and footers.
   - `game/` - Minigames like Counting with atomic JSON persistence.
@@ -90,3 +89,4 @@
 - **2026-07-03**: Initialized `AGENTS.md`. Established AI maintenance protocol. Removed leaked Discord tokens from `config.yml`.
 - **2026-11-10**: Translated entire core application from Java to Python (`discord.py`) with 100% functional, cryptographic, and data parity. Implemented comprehensive test suite with 23 pytest tests. Updated Dockerfile to Python 3.12 + OpenJDK 21 headless.
 - **2026-11-10**: Completely removed legacy license system, AES crypto modules, license slash command, and associated configs across codebase.
+- **2026-11-10**: Removed AI supporter assistant and listener (`bot/ai/`) and associated configuration.

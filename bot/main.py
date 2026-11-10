@@ -11,8 +11,6 @@ from bot.invite.manager import InviteManager
 from bot.invite.tracker import InviteTracker
 from bot.message.manager import MessageManager
 from bot.ticket.manager import TicketManager
-from bot.ai.assistant import SupportAI
-from bot.ai.listener import AIListener
 from bot.commands import (
     setup_ping_command,
     setup_invite_command,
@@ -34,8 +32,6 @@ class CSkyBot(discord.Client):
         self.invite_tracker: InviteTracker | None = None
         self.message_manager: MessageManager | None = None
         self.counting_game: CountingGame | None = None
-        self.ai_assistant: SupportAI | None = None
-        self.ai_listener: AIListener | None = None
 
     async def setup_hook(self):
         # Configure global tree error handler
@@ -112,15 +108,6 @@ class CSkyBot(discord.Client):
             await self.close()
             sys.exit(1)
 
-        # Initialize Supporter AI
-        try:
-            self.ai_assistant = SupportAI()
-            self.ai_listener = AIListener(self.ai_assistant)
-        except Exception as ex:
-            BotLogger.error(f"Failed to initialize supporter AI. AI support will be unavailable. :( Error: {ex}", False)
-            self.ai_assistant = None
-            self.ai_listener = None
-
         # Register Commands
         BotLogger.info("Registering commands...", False)
         guild_target = discord.Object(id=Config.GUILD_ID)
@@ -154,8 +141,6 @@ class CSkyBot(discord.Client):
             self.message_manager.handle_message(message)
         if self.counting_game:
             await self.counting_game.handle_message(message)
-        if self.ai_listener:
-            await self.ai_listener.handle_message(message)
 
     async def on_message_delete(self, message: discord.Message):
         if self.message_manager:

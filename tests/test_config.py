@@ -6,7 +6,6 @@ def test_config_parsing(tmp_path):
     yaml_file = tmp_path / "config.yml"
     yaml_file.write_text("""
 Token: "TEST_TOKEN"
-AI-Key: "TEST_AI_KEY"
 Guild-ID: "1111724818614722690"
 Log-Channel-ID: "1111724820086915158"
 Staff-Role-ID: "1384520568451108974"
@@ -26,7 +25,6 @@ Support-Category-ID: "1112388539083128933"
     Config.load(str(yaml_file))
 
     assert Config.TOKEN == "TEST_TOKEN"
-    assert Config.AI_KEY == "TEST_AI_KEY"
     assert Config.GUILD_ID == 1111724818614722690
     assert Config.LOG_CHANNEL_ID == 1111724820086915158
     assert Config.STAFF_ROLE_ID == 1384520568451108974
@@ -49,7 +47,6 @@ def test_config_env_override(tmp_path, monkeypatch):
     yaml_file = tmp_path / "config.yml"
     yaml_file.write_text("""
 Token: "YAML_TOKEN"
-AI-Key: "TEST_AI_KEY"
 Guild-ID: "111"
 Log-Channel-ID: "1111724820086915158"
 Staff-Role-ID: "1384520568451108974"
