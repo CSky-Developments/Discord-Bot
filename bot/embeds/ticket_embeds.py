@@ -93,10 +93,10 @@ def make_plugin_gen_embed() -> discord.Embed:
             "> • Receive the compiled .jar file\n"
             "> • Get a README with usage instructions\n"
             "> • Ready to use on your server!\n\n"
-            "**Average Generation Time:** `5-10 minutes\n`"
-            "**Subscription Cost:** `90 INR/month` (only)"
+            "**Average Generation Time:** `5-10 minutes`\n"
+            "**Cost:** `Free`"
         ),
-        color=0xE74C3C,
+        color=0x4482FF,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)

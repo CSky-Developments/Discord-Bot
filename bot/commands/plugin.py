@@ -11,21 +11,6 @@ def setup_plugin_command(tree: app_commands.CommandTree, guild: discord.Object, 
 
     @plugin_group.command(name="generate", description="Start a new plugin generation request")
     async def plugin_generate(interaction: discord.Interaction):
-        user = interaction.user
-        has_role = any(r.id == Config.PLUGIN_GEN_ACCESS_ROLE_ID for r in getattr(user, "roles", []))
-        if not has_role:
-            no_access = discord.Embed(
-                title="**Access Denied**",
-                description=(
-                    "**You need the Plugin Generation subscription to use this service.**\n"
-                    "This is a premium feature. Please create a ticket to subscribe."
-                ),
-                color=0xE74C3C
-            )
-            no_access.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
-            await interaction.response.send_message(embed=no_access, ephemeral=True, delete_after=15)
-            return
-
         await interaction.response.send_message(embed=ticket_embeds.make_plugin_gen_embed(), view=buttons.create_plugin_generate_view())
 
     @plugin_group.command(name="add", description="Add a member to the plugin ticket")

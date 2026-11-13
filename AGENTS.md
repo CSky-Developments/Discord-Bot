@@ -90,3 +90,4 @@
 - **2026-11-10**: Translated entire core application from Java to Python (`discord.py`) with 100% functional, cryptographic, and data parity. Implemented comprehensive test suite with 23 pytest tests. Updated Dockerfile to Python 3.12 + OpenJDK 21 headless.
 - **2026-11-10**: Completely removed legacy license system, AES crypto modules, license slash command, and associated configs across codebase.
 - **2026-11-10**: Removed AI supporter assistant and listener (`bot/ai/`) and associated configuration.
+- **2026-11-13**: Made AI plugin generator free for all users by removing subscription role checks from ticket interaction and slash commands, and updating embed info.

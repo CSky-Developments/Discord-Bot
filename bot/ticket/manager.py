@@ -267,20 +267,6 @@ class TicketManager:
 
     async def handle_create_ticket(self, interaction: discord.Interaction, member: discord.Member, ticket_type: TicketType, extra: Optional[str] = None):
         if ticket_type == TicketType.PLUGIN_GEN:
-            has_role = any(r.id == Config.PLUGIN_GEN_ACCESS_ROLE_ID for r in member.roles) if isinstance(member, discord.Member) else False
-            if not has_role:
-                no_access = discord.Embed(
-                    title="**Access Denied**",
-                    description=(
-                        "**You need the Plugin Generation subscription to use this service.**\n"
-                        "This is a premium feature. Please create a ticket to subscribe."
-                    ),
-                    color=0xE74C3C
-                )
-                no_access.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
-                await interaction.response.send_message(embed=no_access, ephemeral=True, delete_after=15)
-                return
-
             modal = PluginGenModal(self)
             await interaction.response.send_modal(modal)
             return
