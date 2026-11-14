@@ -3,17 +3,16 @@
 A custom Discord bot tailored for CSky Developments built with Python 3.12+ and discord.py. This application handles community features, administrative tasks, support tickets, and AI integrations.
 
 ## Features
-- **Tickets**: Comprehensive support ticketing system with categories (Support, Order, Plugin Gen, Reward, Staff Application).
+- **Tickets**: Support ticketing system with categories (Support, Order, Staff Application).
+- **Web & Store Sync**: `/links`, `/status`, `/store`, and automatic `/claim-buyer` role sync with `store.csky.dev`.
 - **Invites**: Tracks user invites, member roles, and persists invite counts.
-- **Counting Game**: Manages channel-based counting minigames with milestone tracking and double-count prevention.
-- **Plugin Generator**: AI-powered Minecraft plugin generator leveraging Google Gemini 2.5 Flash and dynamic javac compilation.
+- **Counting Game**: Channel-based counting minigame with milestone tracking and double-count prevention.
 - **Message Auditing**: Non-intrusive LRU audit logger for message deletes and edits.
 
 ## Tech Stack
 - Python 3.12+
 - [discord.py](https://github.com/Rapptz/discord.py) 2.4+
-- Google GenAI SDK (`gemini-2.5-flash`)
-- OpenJDK 21 headless (for runtime plugin builds)
+- aiohttp 3.9+
 - PyYAML 6.0+
 - pytest & pytest-asyncio
 

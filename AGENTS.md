@@ -20,11 +20,10 @@
   - `game/` - Minigames like Counting with atomic JSON persistence.
   - `invite/` - Tracks user invites and persistence.
   - `message/` - Message caching and audit logging.
-  - `plugingen/` - AI-powered plugin generator workflow, invoking Gemini and build services.
   - `ticket/` - Support ticket management.
 - `tests/` - Comprehensive unit test suite with pytest.
 - `infra/` - Deployment configs (`docker-compose.yml`, `.env.example`).
-- `Dockerfile` - Multi-runtime Dockerfile (Python 3.12 + OpenJDK 21 headless).
+- `Dockerfile` - Python 3.12 slim container image.
 
 # Development Conventions
 
