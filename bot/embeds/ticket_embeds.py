@@ -18,6 +18,7 @@ def make_ticket_embed() -> discord.Embed:
         color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
+    embed.set_image(url="https://csky.dev/og-cover.png")
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
@@ -31,6 +32,7 @@ def make_ticket_create_embed() -> discord.Embed:
         color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
+    embed.set_image(url="https://csky.dev/og-cover.png")
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
@@ -66,6 +68,7 @@ def make_order_embed() -> discord.Embed:
         color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
+    embed.set_image(url="https://csky.dev/og-cover.png")
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
@@ -82,6 +85,7 @@ def make_order_create_embed() -> discord.Embed:
         color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
+    embed.set_image(url="https://csky.dev/og-cover.png")
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
@@ -114,6 +118,7 @@ def make_staff_app_embed() -> discord.Embed:
         color=0x4482FF,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
+    embed.set_image(url="https://csky.dev/og-cover.png")
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
