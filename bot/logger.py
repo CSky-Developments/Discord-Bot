@@ -1,3 +1,4 @@
+import io
 import os
 import logging
 import asyncio
@@ -74,12 +75,37 @@ class BotLogger:
         logger.debug(message)
 
     @classmethod
+    def _log_dispatch_result(cls, fut):
+        try:
+            exc = fut.exception()
+            if exc is not None:
+                logger.error(f"Failed to send discord log: {exc}")
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            logger.error(f"Error inspecting discord log future: {e}")
+
+    @classmethod
     def send_to_discord(cls, message: str):
         if cls._log_channel is not None:
             try:
-                if cls._loop and cls._loop.is_running():
-                    asyncio.run_coroutine_threadsafe(cls._log_channel.send(message), cls._loop)
+                allowed = discord.AllowedMentions.none()
+                if len(message) > 2000:
+                    summary = message[:1900] + "\n... (truncated; full log attached)"
+                    file_buf = io.BytesIO(message.encode("utf-8"))
+                    coro = cls._log_channel.send(
+                        summary,
+                        file=discord.File(file_buf, filename="log.txt"),
+                        allowed_mentions=allowed,
+                    )
                 else:
-                    asyncio.create_task(cls._log_channel.send(message))
+                    coro = cls._log_channel.send(message, allowed_mentions=allowed)
+
+                if cls._loop and cls._loop.is_running():
+                    fut = asyncio.run_coroutine_threadsafe(coro, cls._loop)
+                    fut.add_done_callback(cls._log_dispatch_result)
+                else:
+                    task = asyncio.create_task(coro)
+                    task.add_done_callback(cls._log_dispatch_result)
             except Exception as e:
                 logger.error(f"Failed to dispatch discord log: {e}")

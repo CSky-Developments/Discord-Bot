@@ -1,3 +1,4 @@
+import asyncio
 import os
 import json
 import discord
@@ -17,6 +18,7 @@ class CountingGame:
         self.data_file = data_file
         self.current_count: int = 1
         self.last_counter_id: Optional[str] = None
+        self._lock = asyncio.Lock()
         self.load_data()
 
     def load_data(self):
@@ -123,39 +125,40 @@ class CountingGame:
             return
 
         content = message.content.strip()
-        try:
-            number = int(content)
-        except ValueError:
+        if not content or not (content.isascii() and content.isdigit()):
             return
+        number = int(content)
 
         channel_name = getattr(message.channel, "name", str(message.channel.id))
 
-        if number <= 0 or number != self.current_count:
-            await message.reply(f"**Sike!** That's the wrong number. Number should be {self.current_count}.")
-            BotLogger.info(f"Oops! Looks like `{author.name}` made a slip in the counting. The count was at `{self.current_count}` in `{channel_name}`.", True)
-            await self._add_custom_or_fallback_emoji(message, "XMark", XMARK_ID, "❌")
-            self.reset_count()
-            return
+        async with self._lock:
+            expected_count = self.current_count
+            if number <= 0 or number != expected_count:
+                self.reset_count()
+                await message.reply(f"**Sike!** That's the wrong number. Number should be {expected_count}.")
+                BotLogger.info(f"Oops! Looks like `{author.name}` made a slip in the counting. The count was at `{expected_count}` in `{channel_name}`.", True)
+                await self._add_custom_or_fallback_emoji(message, "XMark", XMARK_ID, "❌")
+                return
 
-        if str(author.id) == self.last_counter_id:
-            await message.reply(f"**Uh-oh!** {author.mention}, you can't count twice in a row. The count has been reset.")
-            BotLogger.info(f"`{author.name}` counted twice in a row. The current count was at `{self.current_count}` in `{channel_name}`.", True)
-            await self._add_custom_or_fallback_emoji(message, "XMark", XMARK_ID, "❌")
-            self.reset_count()
-            return
+            if str(author.id) == self.last_counter_id:
+                self.reset_count()
+                await message.reply(f"**Uh-oh!** {author.mention}, you can't count twice in a row. The count has been reset.")
+                BotLogger.info(f"`{author.name}` counted twice in a row. The current count was at `{expected_count}` in `{channel_name}`.", True)
+                await self._add_custom_or_fallback_emoji(message, "XMark", XMARK_ID, "❌")
+                return
 
-        if self.current_count in COUNTING_GOALS:
-            goal_msg = self.get_goal_message(self.current_count, author)
-            for r in self.get_goal_reactions(self.current_count):
-                try:
-                    await message.add_reaction(r)
-                except Exception:
-                    pass
-            BotLogger.info(f"`{author.name}` helped us reach the goal of `{self.current_count}` in `{channel_name}`.", True)
-            await message.reply(goal_msg)
-        else:
-            await self._add_custom_or_fallback_emoji(message, "OMark", OMARK_ID, "✅")
+            self.current_count += 1
+            self.last_counter_id = str(author.id)
+            self.save_data()
 
-        self.current_count += 1
-        self.last_counter_id = str(author.id)
-        self.save_data()
+            if expected_count in COUNTING_GOALS:
+                goal_msg = self.get_goal_message(expected_count, author)
+                for r in self.get_goal_reactions(expected_count):
+                    try:
+                        await message.add_reaction(r)
+                    except Exception:
+                        pass
+                BotLogger.info(f"`{author.name}` helped us reach the goal of `{expected_count}` in `{channel_name}`.", True)
+                await message.reply(goal_msg)
+            else:
+                await self._add_custom_or_fallback_emoji(message, "OMark", OMARK_ID, "✅")

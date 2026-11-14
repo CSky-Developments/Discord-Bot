@@ -1,4 +1,6 @@
 import hmac
+import math
+import re
 from typing import Optional
 import discord
 from aiohttp import web
@@ -66,11 +68,22 @@ def _resolve_cover_url(product: Optional[dict]) -> Optional[str]:
     return f"https://store.csky.dev/products/{slug}/opengraph-image" if slug else None
 
 
+def _parse_amount(value: object, field_name: str) -> float:
+    if value is None or value == "":
+        return 0.0
+    if isinstance(value, bool):
+        raise ValueError(f"Invalid numeric value for {field_name}")
+    amount = float(value)
+    if not math.isfinite(amount):
+        raise ValueError(f"Non-finite numeric value for {field_name}")
+    return amount
+
+
 def build_purchase_embed(data: dict) -> tuple[discord.Embed, str]:
     order_number = _clean_text(data.get("orderNumber"), 60) or "ORDER"
     currency = (_clean_text(data.get("currency"), 10) or "USD").upper()
-    total_amount = float(data.get("totalAmount") or 0)
-    discount_amount = float(data.get("discountAmount") or 0)
+    total_amount = _parse_amount(data.get("totalAmount"), "totalAmount")
+    discount_amount = _parse_amount(data.get("discountAmount"), "discountAmount")
     payment_display = _clean_text(data.get("paymentMethod") or data.get("paymentGateway"), 60) or "Stripe"
 
     user = data.get("user") if isinstance(data.get("user"), dict) else {}
@@ -80,7 +93,7 @@ def build_purchase_embed(data: dict) -> tuple[discord.Embed, str]:
     user_name = _clean_text(user.get("name"), 100)
     user_email = _clean_text(user.get("email"), 150)
 
-    if provider == "discord" and provider_id:
+    if provider == "discord" and re.fullmatch(r"\d{17,20}", provider_id):
         buyer_display = f"<@{provider_id}> ({discord_tag or user_name or user_email})"
     else:
         buyer_display = discord_tag or (f"{user_name} ({user_email})" if user_name and user_email else user_name or user_email or "Customer")
@@ -182,7 +195,11 @@ async def start_internal_api(bot: discord.Client) -> Optional[web.AppRunner]:
             )
 
         embed = build_commission_embed(payload)
-        msg = await channel.send(embed=embed, view=buttons.create_commission_request_view())
+        msg = await channel.send(
+            embed=embed,
+            view=buttons.create_commission_request_view(),
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
         return web.json_response({"ok": True, "messageId": str(msg.id)})
 
     async def handle_purchase(request: web.Request) -> web.Response:
@@ -223,8 +240,16 @@ async def start_internal_api(bot: discord.Client) -> Optional[web.AppRunner]:
                 status=500,
             )
 
-        embed, product_url = build_purchase_embed(payload)
-        msg = await channel.send(embed=embed, view=buttons.create_purchase_view(product_url))
+        try:
+            embed, product_url = build_purchase_embed(payload)
+        except (TypeError, ValueError) as exc:
+            return web.json_response({"error": f"Invalid purchase payload: {exc}"}, status=400)
+
+        msg = await channel.send(
+            embed=embed,
+            view=buttons.create_purchase_view(product_url),
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
         return web.json_response({"ok": True, "messageId": str(msg.id)})
 
     app = web.Application()

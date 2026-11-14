@@ -24,7 +24,7 @@ def setup_staffapp_command(tree: app_commands.CommandTree, guild: discord.Object
         channel = interaction.channel
         cat_id = getattr(channel, "category_id", None)
         if cat_id == Config.TICKET_STAFF_APP:
-            await interaction.response.send_message(embed=ticket_embeds.make_staff_app_close_embed(), view=buttons.create_app_delete_view())
+            await interaction.response.send_message(embed=ticket_embeds.make_staff_app_close_embed(), view=buttons.create_app_close_confirm_view())
         else:
             await interaction.response.send_message("> **🚫 You can't use this command here!**", ephemeral=True, delete_after=10)
 

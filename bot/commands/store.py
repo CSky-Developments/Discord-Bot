@@ -1,6 +1,8 @@
 """Live CSky Store catalog search and product lookup commands (/store)."""
 
+import re
 from typing import Optional
+from urllib.parse import quote
 import aiohttp
 import discord
 from discord import app_commands
@@ -167,10 +169,17 @@ def setup_store_command(tree: app_commands.CommandTree, guild: discord.Object):
     async def store_product(interaction: discord.Interaction, slug: str):
         await interaction.response.defer(thinking=True)
         clean_slug = slug.strip().lower()
+        if not re.fullmatch(r"[a-z0-9-]+", clean_slug):
+            await interaction.followup.send(
+                "Invalid product slug. Use lowercase letters, numbers, and hyphens only.",
+                ephemeral=True,
+            )
+            return
+        encoded_slug = quote(clean_slug, safe="")
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"{CSKY_STORE_URL}/api/products/{clean_slug}",
+                    f"{CSKY_STORE_URL}/api/products/{encoded_slug}",
                     timeout=aiohttp.ClientTimeout(total=8),
                 ) as resp:
                     if resp.status == 404:

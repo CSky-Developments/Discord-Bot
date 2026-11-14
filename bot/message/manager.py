@@ -7,6 +7,10 @@ from bot.logger import BotLogger
 
 CACHE_LIMIT = 10000
 
+def _escape_markdown_ticks(text: str) -> str:
+    return text.replace("`", "`\u200b")
+
+
 class MessageEntry:
     def __init__(self, content: str, author_id: str, timestamp: float):
         self.content = content
@@ -56,7 +60,10 @@ class MessageManager:
             if ch:
                 channel_name = getattr(ch, "name", str(ch.id))
 
-        log_message = f"Messages of `{author_name}` was deleted in `{channel_name}`: ```Content: {content}```"
+        safe_author = _escape_markdown_ticks(author_name)
+        safe_channel = _escape_markdown_ticks(channel_name)
+        safe_content = _escape_markdown_ticks(content)
+        log_message = f"Messages of `{safe_author}` was deleted in `{safe_channel}`: ```Content: {safe_content}```"
         BotLogger.info(log_message, True)
 
     def handle_message_edit(self, before: Optional[discord.Message], after: discord.Message):
@@ -75,9 +82,13 @@ class MessageManager:
             author_mention = after.author.name
             channel_name = getattr(after.channel, "name", str(after.channel.id))
 
+            safe_author = _escape_markdown_ticks(author_mention)
+            safe_channel = _escape_markdown_ticks(channel_name)
+            safe_old = _escape_markdown_ticks(old_content)
+            safe_new = _escape_markdown_ticks(new_content)
             log_message = (
-                f"`{author_mention}` edited their message in `{channel_name}`: "
-                f"```Original: {old_content}``` ```Edited: {new_content}```"
+                f"`{safe_author}` edited their message in `{safe_channel}`: "
+                f"```Original: {safe_old}``` ```Edited: {safe_new}```"
             )
 
             self.message_cache[msg_id] = MessageEntry(new_content, cached_entry.author_id, time.time())

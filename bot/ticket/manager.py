@@ -16,6 +16,15 @@ from bot.ticket.modals import CommissionOrderModal, StaffApplicationModal
 from bot.embeds import ticket_embeds, help_embeds
 
 DATA_FILE = os.path.join("data", "ticket_data.json")
+_CREATOR_TOPIC_RE = re.compile(r"Ticket Creator:\s*(\d{17,20})")
+
+
+def is_staff(member: discord.abc.User) -> bool:
+    if not isinstance(member, discord.Member):
+        return False
+    if member.guild_permissions.administrator:
+        return True
+    return any(r.id == Config.STAFF_ROLE_ID for r in getattr(member, "roles", []))
 
 class TicketData:
     def __init__(self):
@@ -43,7 +52,16 @@ class TicketManager:
         self.guild = guild
         self.data_file = data_file
         self.ticket_data = TicketData()
+        self._action_locks: Dict[int, asyncio.Lock] = {}
+        self._processed_messages: set[int] = set()
         self.load_ticket_data()
+
+    def _get_message_lock(self, message_id: int) -> asyncio.Lock:
+        lock = self._action_locks.get(message_id)
+        if lock is None:
+            lock = asyncio.Lock()
+            self._action_locks[message_id] = lock
+        return lock
 
     def load_ticket_data(self):
         if not os.path.exists(self.data_file):
@@ -75,7 +93,18 @@ class TicketManager:
         except Exception as ex:
             BotLogger.info(f"An error occurred while saving ticket data. Error: {ex}", False)
 
-    def get_ticket_id(self, ticket_type: TicketType) -> str:
+    def _peek_ticket_id(self, ticket_type: TicketType) -> str:
+        if ticket_type == TicketType.NORMAL:
+            tid = self.ticket_data.normal_ticket_id
+        elif ticket_type == TicketType.ORDER:
+            tid = self.ticket_data.order_ticket_id
+        elif ticket_type == TicketType.STAFF_APP:
+            tid = self.ticket_data.staff_app_ticket_id
+        else:
+            tid = 1
+        return f"{tid:04d}"
+
+    def _commit_ticket_id(self, ticket_type: TicketType):
         if ticket_type == TicketType.NORMAL:
             tid = self.ticket_data.normal_ticket_id
             self.ticket_data.normal_ticket_id = 0 if tid >= 9999 else tid + 1
@@ -85,11 +114,12 @@ class TicketManager:
         elif ticket_type == TicketType.STAFF_APP:
             tid = self.ticket_data.staff_app_ticket_id
             self.ticket_data.staff_app_ticket_id = 0 if tid >= 9999 else tid + 1
-        else:
-            tid = 1
-
         self.save_ticket_data()
-        return f"{tid:04d}"
+
+    def get_ticket_id(self, ticket_type: TicketType) -> str:
+        formatted = self._peek_ticket_id(ticket_type)
+        self._commit_ticket_id(ticket_type)
+        return formatted
 
     async def handle_button_interaction(self, interaction: discord.Interaction):
         custom_id = interaction.data.get("custom_id")
@@ -178,17 +208,19 @@ class TicketManager:
             TicketType.STAFF_APP: "staff application"
         }
 
-        ticket_emoji = emoji_map.get(ticket_type, "ðŸŽ«ãƒ»")
+        ticket_emoji = emoji_map.get(ticket_type, "🎫・")
         cat_id = category_map.get(ticket_type, 0)
         ticket_name = name_map.get(ticket_type, "ticket")
 
         category = self.guild.get_channel(cat_id)
         if not category or not isinstance(category, discord.CategoryChannel):
             BotLogger.error(f"Category {cat_id} not found for {ticket_type}", True)
-            await interaction.response.send_message("âŒ Failed to find ticket category. Please notify staff.", ephemeral=True)
+            await interaction.response.send_message("❌ Failed to find ticket category. Please notify staff.", ephemeral=True)
             return
 
-        ticket_id = self.get_ticket_id(ticket_type)
+        await interaction.response.defer(ephemeral=True)
+
+        ticket_id = self._peek_ticket_id(ticket_type)
         channel_name = f"{ticket_emoji}{ticket_id}"
 
         BotLogger.info(f"Creating a new `{ticket_name}` for `{member.name}`...", True)
@@ -205,13 +237,15 @@ class TicketManager:
             channel = await self.guild.create_text_channel(
                 name=channel_name,
                 category=category,
-                overwrites=overwrites
+                overwrites=overwrites,
+                topic=f"Ticket Creator: {member.id}",
             )
         except Exception as e:
             BotLogger.error(f"An error occurred while creating a `{ticket_name}` for `{member.name}`: {e}", False)
-            await interaction.response.send_message("âŒ Failed to create channel. Check permissions.", ephemeral=True)
+            await interaction.followup.send("❌ Failed to create channel. Check permissions.", ephemeral=True)
             return
 
+        self._commit_ticket_id(ticket_type)
         BotLogger.info(f"Successfully created a new `{ticket_name}`: `{channel.name}`", True)
 
         desc_map = {
@@ -226,7 +260,7 @@ class TicketManager:
         )
         reply_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
 
-        await interaction.response.send_message(embed=reply_embed, ephemeral=True, delete_after=10)
+        await interaction.followup.send(embed=reply_embed, ephemeral=True)
 
         # Send initial embed inside created channel
         if ticket_type == TicketType.NORMAL:
@@ -247,14 +281,45 @@ class TicketManager:
             await channel.send(embed=ticket_embeds.make_staff_app_create_embed(), view=view)
             await channel.send(embed=questions)
 
+    def _resolve_ticket_creator(self, channel: discord.TextChannel) -> Optional[discord.Member]:
+        topic = getattr(channel, "topic", None) or ""
+        match = _CREATOR_TOPIC_RE.search(topic)
+        if match:
+            creator = self.guild.get_member(int(match.group(1)))
+            if creator:
+                return creator
+        return None
+
     async def handle_close_confirm(self, interaction: discord.Interaction, member: discord.Member, channel: discord.TextChannel, ticket_type: TicketType):
+        expected_cat = {
+            TicketType.NORMAL: Config.TICKET_NORMAL,
+            TicketType.ORDER: Config.TICKET_ORDER,
+            TicketType.STAFF_APP: Config.TICKET_STAFF_APP,
+        }.get(ticket_type)
+        if not channel or getattr(channel, "category_id", None) != expected_cat:
+            await interaction.response.send_message(
+                "> **🚫 You can't use this here!**",
+                ephemeral=True,
+                delete_after=10,
+            )
+            return
+
         staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
-        overwrites = {
+        overwrites: Dict[Any, discord.PermissionOverwrite] = {
             self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-            member: discord.PermissionOverwrite(view_channel=False),
         }
         if staff_role:
             overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+
+        creator = self._resolve_ticket_creator(channel)
+        if creator and not self._is_staff_member(creator):
+            overwrites[creator] = discord.PermissionOverwrite(view_channel=False)
+
+        # Also revoke view_channel for any non-staff member with explicit view_channel=True overwrite
+        for target, overwrite in getattr(channel, "overwrites", {}).items():
+            if isinstance(target, discord.Member) and overwrite.view_channel is True:
+                if not self._is_staff_member(target):
+                    overwrites[target] = discord.PermissionOverwrite(view_channel=False)
 
         try:
             for target, overwrite in overwrites.items():
@@ -286,8 +351,7 @@ class TicketManager:
         )
 
     async def handle_delete_ticket(self, interaction: discord.Interaction, member: discord.Member, channel: discord.TextChannel, ticket_type: TicketType):
-        has_staff_role = any(r.id == Config.STAFF_ROLE_ID for r in member.roles) if isinstance(member, discord.Member) else False
-        if not has_staff_role:
+        if not self._is_staff_member(member):
             no_perms = discord.Embed(
                 title="**NO PERMISSIONS**",
                 description="**You must be a staff member to do that.**",
@@ -367,11 +431,7 @@ class TicketManager:
             BotLogger.error(f"Failed to remove member from ticket: {e}")
 
     def _is_staff_member(self, member: discord.abc.User) -> bool:
-        if not isinstance(member, discord.Member):
-            return False
-        if member.guild_permissions.administrator:
-            return True
-        return any(r.id == Config.STAFF_ROLE_ID for r in member.roles)
+        return is_staff(member)
 
     def _resolve_member_from_contact(self, contact_raw: str) -> Optional[discord.Member]:
         cleaned = contact_raw.strip().strip("`").lstrip("@").strip()
@@ -410,46 +470,55 @@ class TicketManager:
             await interaction.response.send_message("Commission details not found on this message.", ephemeral=True)
             return
 
-        category = self.guild.get_channel(Config.TICKET_ORDER)
-        if not category or not isinstance(category, discord.CategoryChannel):
-            await interaction.response.send_message(
-                "Order ticket category is not configured.",
-                ephemeral=True,
-            )
-            return
+        async with self._get_message_lock(interaction.message.id):
+            src_embed = interaction.message.embeds[0]
+            if interaction.message.id in self._processed_messages or any(f.name == "Status" for f in src_embed.fields):
+                await interaction.response.send_message("This commission request has already been processed.", ephemeral=True)
+                return
 
-        src_embed = interaction.message.embeds[0]
-        field_map = {f.name: f.value for f in src_embed.fields}
-        client_name = field_map.get("Client", "Client")
-        contact_raw = field_map.get("Contact", "Not provided")
+            category = self.guild.get_channel(Config.TICKET_ORDER)
+            if not category or not isinstance(category, discord.CategoryChannel):
+                await interaction.response.send_message(
+                    "Order ticket category is not configured.",
+                    ephemeral=True,
+                )
+                return
 
-        matched_member = self._resolve_member_from_contact(contact_raw)
-        ticket_id = self.get_ticket_id(TicketType.ORDER)
-        channel_name = f"order-{ticket_id}"
+            field_map = {f.name: f.value for f in src_embed.fields}
+            client_name = field_map.get("Client", "Client")
+            contact_raw = field_map.get("Contact", "Not provided")
 
-        staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
-        overwrites = {
-            self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-        }
-        if staff_role:
-            overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
-        if isinstance(member, discord.Member):
-            overwrites[member] = discord.PermissionOverwrite(view_channel=True)
-        if matched_member:
-            overwrites[matched_member] = discord.PermissionOverwrite(view_channel=True)
+            matched_member = self._resolve_member_from_contact(contact_raw)
+            ticket_id = self._peek_ticket_id(TicketType.ORDER)
+            channel_name = f"order-{ticket_id}"
 
-        await interaction.response.defer(ephemeral=True)
+            staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
+            overwrites = {
+                self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            }
+            if staff_role:
+                overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+            if isinstance(member, discord.Member):
+                overwrites[member] = discord.PermissionOverwrite(view_channel=True)
+            if matched_member:
+                overwrites[matched_member] = discord.PermissionOverwrite(view_channel=True)
 
-        try:
-            order_channel = await self.guild.create_text_channel(
-                name=channel_name,
-                category=category,
-                overwrites=overwrites,
-            )
-        except Exception as e:
-            BotLogger.error(f"Failed to create commission order ticket: {e}", True)
-            await interaction.followup.send("Failed to create order ticket channel.", ephemeral=True)
-            return
+            await interaction.response.defer(ephemeral=True)
+
+            try:
+                order_channel = await self.guild.create_text_channel(
+                    name=channel_name,
+                    category=category,
+                    overwrites=overwrites,
+                    topic=f"Ticket Creator: {matched_member.id}" if matched_member else "",
+                )
+            except Exception as e:
+                BotLogger.error(f"Failed to create commission order ticket: {e}", True)
+                await interaction.followup.send("Failed to create order ticket channel.", ephemeral=True)
+                return
+
+            self._commit_ticket_id(TicketType.ORDER)
+            self._processed_messages.add(interaction.message.id)
 
         summary_embed = discord.Embed(
             title=src_embed.title or "Accepted Commission Request",
@@ -536,48 +605,57 @@ class TicketManager:
             await interaction.response.send_message("Purchase details not found on this message.", ephemeral=True)
             return
 
-        category = self.guild.get_channel(Config.TICKET_NORMAL)
-        if not category or not isinstance(category, discord.CategoryChannel):
-            await interaction.response.send_message("Support ticket category is not configured.", ephemeral=True)
-            return
+        async with self._get_message_lock(interaction.message.id):
+            src_embed = interaction.message.embeds[0]
+            if interaction.message.id in self._processed_messages or any(f.name == "Ticket" for f in src_embed.fields):
+                await interaction.response.send_message("A support ticket has already been opened for this purchase.", ephemeral=True)
+                return
 
-        src_embed = interaction.message.embeds[0]
-        field_map = {f.name: f.value for f in src_embed.fields}
-        buyer_raw = field_map.get("Buyer", "Customer")
+            category = self.guild.get_channel(Config.TICKET_NORMAL)
+            if not category or not isinstance(category, discord.CategoryChannel):
+                await interaction.response.send_message("Support ticket category is not configured.", ephemeral=True)
+                return
 
-        matched_member = None
-        mention_match = re.search(r"<@!?(\d{17,20})>", buyer_raw)
-        if mention_match:
-            matched_member = self.guild.get_member(int(mention_match.group(1)))
-        if not matched_member:
-            matched_member = self._resolve_member_from_contact(buyer_raw.split("(")[0].strip())
+            field_map = {f.name: f.value for f in src_embed.fields}
+            buyer_raw = field_map.get("Buyer", "Customer")
 
-        ticket_id = self.get_ticket_id(TicketType.NORMAL)
-        channel_name = f"ticket-{ticket_id}"
+            matched_member = None
+            mention_match = re.search(r"<@!?(\d{17,20})>", buyer_raw)
+            if mention_match:
+                matched_member = self.guild.get_member(int(mention_match.group(1)))
+            if not matched_member:
+                matched_member = self._resolve_member_from_contact(buyer_raw.split("(")[0].strip())
 
-        staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
-        overwrites = {
-            self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-        }
-        if staff_role:
-            overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
-        if isinstance(member, discord.Member):
-            overwrites[member] = discord.PermissionOverwrite(view_channel=True)
-        if matched_member:
-            overwrites[matched_member] = discord.PermissionOverwrite(view_channel=True)
+            ticket_id = self._peek_ticket_id(TicketType.NORMAL)
+            channel_name = f"ticket-{ticket_id}"
 
-        await interaction.response.defer(ephemeral=True)
+            staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
+            overwrites = {
+                self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            }
+            if staff_role:
+                overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+            if isinstance(member, discord.Member):
+                overwrites[member] = discord.PermissionOverwrite(view_channel=True)
+            if matched_member:
+                overwrites[matched_member] = discord.PermissionOverwrite(view_channel=True)
 
-        try:
-            ticket_channel = await self.guild.create_text_channel(
-                name=channel_name,
-                category=category,
-                overwrites=overwrites,
-            )
-        except Exception as e:
-            BotLogger.error(f"Failed to create purchase support ticket: {e}", True)
-            await interaction.followup.send("Failed to create support ticket channel.", ephemeral=True)
-            return
+            await interaction.response.defer(ephemeral=True)
+
+            try:
+                ticket_channel = await self.guild.create_text_channel(
+                    name=channel_name,
+                    category=category,
+                    overwrites=overwrites,
+                    topic=f"Ticket Creator: {matched_member.id}" if matched_member else "",
+                )
+            except Exception as e:
+                BotLogger.error(f"Failed to create purchase support ticket: {e}", True)
+                await interaction.followup.send("Failed to create support ticket channel.", ephemeral=True)
+                return
+
+            self._commit_ticket_id(TicketType.NORMAL)
+            self._processed_messages.add(interaction.message.id)
 
         summary_embed = discord.Embed(
             title=src_embed.title or "Store Purchase Support",
@@ -645,7 +723,7 @@ class TicketManager:
             )
             return
 
-        ticket_id = self.get_ticket_id(TicketType.ORDER)
+        ticket_id = self._peek_ticket_id(TicketType.ORDER)
         channel_name = f"order-{ticket_id}"
         staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
         overwrites = {
@@ -662,11 +740,14 @@ class TicketManager:
                 name=channel_name,
                 category=category,
                 overwrites=overwrites,
+                topic=f"Ticket Creator: {member.id}",
             )
         except Exception as e:
             BotLogger.error(f"Failed to create modal order ticket for `{member.name}`: {e}", False)
             await interaction.followup.send("Failed to create order channel. Check permissions.", ephemeral=True)
             return
+
+        self._commit_ticket_id(TicketType.ORDER)
 
         is_public = "public" in track.lower()
         brief_embed = discord.Embed(
@@ -714,7 +795,7 @@ class TicketManager:
             )
             return
 
-        ticket_id = self.get_ticket_id(TicketType.STAFF_APP)
+        ticket_id = self._peek_ticket_id(TicketType.STAFF_APP)
         channel_name = f"app-{ticket_id}"
         staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
         overwrites = {
@@ -731,11 +812,14 @@ class TicketManager:
                 name=channel_name,
                 category=category,
                 overwrites=overwrites,
+                topic=f"Ticket Creator: {member.id}",
             )
         except Exception as e:
             BotLogger.error(f"Failed to create modal staff app for `{member.name}`: {e}", False)
             await interaction.followup.send("Failed to create application channel. Check permissions.", ephemeral=True)
             return
+
+        self._commit_ticket_id(TicketType.STAFF_APP)
 
         app_embed = discord.Embed(
             title=f"Staff Application — {role_name}",

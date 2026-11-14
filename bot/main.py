@@ -148,8 +148,6 @@ class CSkyBot(discord.Client):
         if self.message_manager:
             self.message_manager.handle_message_edit(before, after)
 
-        await self._update_member_count()
-
     async def _update_member_count(self):
         if not self.guild_obj or not Config.MEMBER_COUNT_CHANNEL_ID:
             return

@@ -3,10 +3,7 @@ from discord import app_commands
 from bot.config import Config
 from bot.ticket import buttons
 from bot.embeds import ticket_embeds, help_embeds
-from bot.ticket.manager import TicketManager
-
-def is_staff(member: discord.Member) -> bool:
-    return any(r.id == Config.STAFF_ROLE_ID for r in getattr(member, "roles", []))
+from bot.ticket.manager import TicketManager, is_staff
 
 def make_no_permission_embed() -> discord.Embed:
     embed = discord.Embed(
