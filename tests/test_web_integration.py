@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import discord
 import pytest
 
-from bot.commands.buyer import make_buyer_sync_embed, sync_buyer_role
+from bot.commands.buyer import sync_buyer_role
 from bot.commands.links import make_links_embed, make_status_embed
 from bot.commands.store import (
     create_store_view,
@@ -122,11 +122,3 @@ async def test_buyer_sync_embed_and_role_grant(monkeypatch):
         granted = await sync_buyer_role(member)
         assert granted is True
         member.add_roles.assert_awaited_once()
-
-    emb = make_buyer_sync_embed("Arsh", {
-        "completedOrders": 2,
-        "activeLicenses": 1,
-        "products": ["Scores SMP"],
-    }, role_granted=True)
-    assert "Buyer role granted!" in emb.description
-    assert "Scores SMP" in emb.description

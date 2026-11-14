@@ -20,7 +20,6 @@ from bot.commands import (
     setup_embed_command,
     setup_links_command,
     setup_store_command,
-    setup_buyer_command,
 )
 from bot.commands.buyer import sync_buyer_role
 
@@ -122,7 +121,6 @@ class CSkyBot(discord.Client):
             setup_staffapp_command(self.tree, guild_target)
             setup_links_command(self.tree, guild_target)
             setup_store_command(self.tree, guild_target)
-            setup_buyer_command(self.tree, guild_target)
 
             synced = await self.tree.sync(guild=guild_target)
             BotLogger.info(f"Successfully registered {len(synced)} commands for guild {self.guild_obj.name}", False)

@@ -27,7 +27,6 @@ def make_help_embed() -> discord.Embed:
             "**/links** — Official links for Website, Store, CSky Studio & Terms.\n"
             "**/store search** — Browse or search live products from `store.csky.dev`.\n"
             "**/store product** — View detailed info & pricing for a store product.\n"
-            "**/claim-buyer** — Sync your `store.csky.dev` purchases & claim your Buyer role.\n"
             "**/status** — Check live uptime of CSky web services & APIs."
         ),
         inline=False,

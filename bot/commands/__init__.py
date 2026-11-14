@@ -6,7 +6,6 @@ from bot.commands.staffapp import setup_staffapp_command
 from bot.commands.embed import setup_embed_command
 from bot.commands.links import setup_links_command
 from bot.commands.store import setup_store_command
-from bot.commands.buyer import setup_buyer_command
 
 __all__ = [
     "setup_ping_command",
@@ -17,5 +16,4 @@ __all__ = [
     "setup_embed_command",
     "setup_links_command",
     "setup_store_command",
-    "setup_buyer_command",
 ]

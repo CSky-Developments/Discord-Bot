@@ -10,7 +10,6 @@ from bot.commands.order import setup_order_command
 from bot.commands.staffapp import setup_staffapp_command
 from bot.commands.links import setup_links_command
 from bot.commands.store import setup_store_command
-from bot.commands.buyer import setup_buyer_command
 from unittest.mock import MagicMock
 
 def test_all_commands_registration():
@@ -29,7 +28,6 @@ def test_all_commands_registration():
     setup_staffapp_command(tree, guild_target)
     setup_links_command(tree, guild_target)
     setup_store_command(tree, guild_target)
-    setup_buyer_command(tree, guild_target)
 
     commands = tree.get_commands(guild=guild_target)
     command_names = [cmd.name for cmd in commands]
@@ -45,5 +43,5 @@ def test_all_commands_registration():
     assert "links" in command_names
     assert "status" in command_names
     assert "store" in command_names
-    assert "claim-buyer" in command_names
+    assert "claim-buyer" not in command_names
     assert "license" not in command_names

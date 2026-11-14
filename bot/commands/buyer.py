@@ -1,12 +1,11 @@
-"""Automatic and self-service Discord Buyer role synchronization (/claim-buyer)."""
+"""Automatic Discord Buyer role synchronization on member join."""
 
 from typing import Any
 import aiohttp
 import discord
-from discord import app_commands
 
 from bot.config import Config
-from bot.embeds.help_embeds import CSKY_AUTH_URL, CSKY_STORE_URL, FOOTER_ICON, FOOTER_TEXT
+from bot.embeds.help_embeds import CSKY_STORE_URL
 from bot.logger import BotLogger
 
 
@@ -54,93 +53,3 @@ async def sync_buyer_role(member: discord.Member) -> bool:
     except Exception as exc:
         BotLogger.warn(f"Failed to add Buyer role to {member.id}: {exc}", False)
         return False
-
-
-def make_buyer_sync_embed(member_name: str, data: dict[str, Any], role_granted: bool) -> discord.Embed:
-    products = data.get("products") or []
-    product_list = ", ".join(f"`{p}`" for p in products[:8]) if products else "Verified Store Order"
-    status_line = "Buyer role granted!" if role_granted else "Your Buyer role is already active."
-
-    embed = discord.Embed(
-        title="CSky Store — Buyer Verified",
-        description=(
-            f"{status_line}\n\n"
-            f"• **Account:** `{member_name}`\n"
-            f"• **Completed Orders:** `{data.get('completedOrders', 0)}`\n"
-            f"• **Active Licenses:** `{data.get('activeLicenses', 0)}`\n"
-            f"• **Products:** {product_list}"
-        ),
-        color=0x16A34A,
-    )
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
-
-def setup_buyer_command(tree: app_commands.CommandTree, guild: discord.Object):
-    @tree.command(
-        name="claim-buyer",
-        description="Sync your store.csky.dev purchases and claim your Discord Buyer role.",
-        guild=guild,
-    )
-    async def claim_buyer_cmd(interaction: discord.Interaction):
-        if not Config.BUYER_ROLE_ID or not Config.INTERNAL_API_SECRET:
-            await interaction.response.send_message(
-                "⚠️ Buyer role sync is not configured on this server yet. Please contact staff in a ticket.",
-                ephemeral=True,
-            )
-            return
-
-        if not isinstance(interaction.user, discord.Member) or not interaction.guild:
-            await interaction.response.send_message("❌ This command can only be used inside the server.", ephemeral=True)
-            return
-
-        await interaction.response.defer(ephemeral=True, thinking=True)
-        data = await fetch_buyer_status(interaction.user.id, interaction.user.name)
-
-        if data is None:
-            await interaction.followup.send(
-                f"⚠️ Could not reach `store.csky.dev` right now. Please try again shortly.",
-                ephemeral=True,
-            )
-            return
-
-        if not data.get("linked"):
-            await interaction.followup.send(
-                f"❌ No `store.csky.dev` account is linked to your Discord yet.\n"
-                f"Sign in with **Discord** at {CSKY_AUTH_URL} or {CSKY_STORE_URL}, then run `/claim-buyer` again.",
-                ephemeral=True,
-            )
-            return
-
-        if not data.get("isBuyer"):
-            await interaction.followup.send(
-                f"ℹ️ Your account is linked, but no completed orders or active licenses were found yet.\n"
-                f"Browse plugins & setups at {CSKY_STORE_URL}.",
-                ephemeral=True,
-            )
-            return
-
-        role = interaction.guild.get_role(Config.BUYER_ROLE_ID)
-        if not role:
-            await interaction.followup.send(
-                "⚠️ Configured Buyer role was not found in this server. Please notify staff.",
-                ephemeral=True,
-            )
-            return
-
-        role_granted = False
-        if role not in interaction.user.roles:
-            try:
-                await interaction.user.add_roles(role, reason="Self-service /claim-buyer sync")
-                role_granted = True
-            except Exception:
-                await interaction.followup.send(
-                    "⚠️ I don't have permission to assign the Buyer role. Please notify staff.",
-                    ephemeral=True,
-                )
-                return
-
-        await interaction.followup.send(
-            embed=make_buyer_sync_embed(interaction.user.display_name, data, role_granted),
-            ephemeral=True,
-        )
