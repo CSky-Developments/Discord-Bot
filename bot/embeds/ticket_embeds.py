@@ -103,54 +103,17 @@ def make_order_close_cancel_embed() -> discord.Embed:
 
 def make_staff_app_embed() -> discord.Embed:
     embed = discord.Embed(
-        title="Join the CSky Developments Team",
-        url="https://csky.dev/about",
+        title="**Staff Application**",
         description=(
-            "We build high-performance Minecraft software, custom resource packs, and studio tooling. "
-            "Select a role below to open the **application form**.\n\n"
-            "### Open Roles\n"
-            "> **Developer** — Java 21 / Kotlin, Paper 26.3, Purpur, Folia, Velocity & 16x–128x resource packs\n"
-            "> **Moderator** — Community safety, conflict resolution & fair rule enforcement\n"
-            "> **Supporter** — Prompt customer assistance, troubleshooting & onboarding\n\u200b"
+            "**Thank you for considering a position at CSky Developments, your premier destination for Minecraft server solutions. We are currently looking for talented individuals to join our team in the following roles:**\n"
+            "1. **Developer:** As a Developer at CSky Developments, you will be responsible for creating and maintaining plugins, texture packs, custom builds, and server setups. You should have a strong understanding of Java and Minecraft server architecture. Experience with plugin development frameworks, such as Bukkit or Spigot, is highly desirable.\n"
+            "2. **Moderator:** In the role of Moderator, you will be entrusted with maintaining a positive and welcoming community environment on our servers. Your responsibilities will include enforcing server rules, resolving conflicts, and assisting players with any issues they may encounter. Good communication and problem-solving skills are essential for this role.\n"
+            "3. **Supporter:** As a Supporter, you will provide prompt and efficient assistance to our players, addressing their inquiries, troubleshooting technical problems, and guiding them through gameplay-related challenges. You should have excellent communication skills, a friendly demeanor, and a passion for helping others.\n\n"
+            "**To apply for a role, please select the field you are interested in and click on the respective button below. We will review your application and contact you for further steps in the hiring process.**"
         ),
-        color=0x1A73E8,
+        color=0x4482FF,
     )
-    embed.set_author(
-        name="CSky Developments • Careers",
-        url="https://csky.dev/about",
-        icon_url=FOOTER_ICON,
-    )
-    embed.add_field(
-        name="Review Process",
-        value=(
-            "1. Submit Form\n"
-            "2. Private Ticket\n"
-            "3. Portfolio / Chat\n"
-            "4. Team Onboarding"
-        ),
-        inline=True,
-    )
-    embed.add_field(
-        name="Expectations",
-        value=(
-            "Clear Communication\n"
-            "Reliable Availability\n"
-            "Clean Code / Conduct\n"
-            "Team Collaboration"
-        ),
-        inline=True,
-    )
-    embed.add_field(
-        name="Ecosystem",
-        value=(
-            "[Website](https://csky.dev)\n"
-            "[Services](https://csky.dev/services)\n"
-            "[Store](https://store.csky.dev)\n"
-            "[Terms](https://csky.dev/terms)"
-        ),
-        inline=True,
-    )
-    embed.set_image(url="https://csky.dev/og-cover.png")
+    embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
