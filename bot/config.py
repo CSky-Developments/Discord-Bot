@@ -14,13 +14,10 @@ class Config:
 
     TICKET_NORMAL: int = 0
     TICKET_ORDER: int = 0
-    TICKET_PLUGIN_GEN: int = 0
-    TICKET_REWARD: int = 0
     TICKET_STAFF_APP: int = 0
     TICKET_CHANNEL_ID: int = 0
     SUPPORT_CATEGORY_ID: int = 0
 
-    PLUGIN_GEN_ACCESS_ROLE_ID: int = 0
     BUYER_ROLE_ID: int = 0
     INTERNAL_API_SECRET: str = ""
     STORE_API_URL: str = "https://store.csky.dev"
@@ -56,10 +53,7 @@ class Config:
         cls.TICKET_CHANNEL_ID = cls._get_int(data, "Ticket-Channel-ID", "TICKET_CHANNEL_ID", required=False)
         cls.TICKET_NORMAL = cls._get_int(data, "Ticket-Normal-Category", "TICKET_NORMAL_CATEGORY")
         cls.TICKET_ORDER = cls._get_int(data, "Ticket-Order-Category", "TICKET_ORDER_CATEGORY")
-        cls.TICKET_PLUGIN_GEN = cls._get_int(data, "Ticket-Plugin-Generation-Category", "TICKET_PLUGIN_GEN_CATEGORY")
-        cls.TICKET_REWARD = cls._get_int(data, "Ticket-Reward-Category", "TICKET_REWARD_CATEGORY")
         cls.TICKET_STAFF_APP = cls._get_int(data, "Ticket-Staff-App-Category", "TICKET_STAFF_APP_CATEGORY")
-        cls.PLUGIN_GEN_ACCESS_ROLE_ID = cls._get_int(data, "Plugin-Gen-Access-Role-ID", "PLUGIN_GEN_ACCESS_ROLE_ID", required=False)
         cls.BUYER_ROLE_ID = cls._get_int(data, "Buyer-Role-ID", "BUYER_ROLE_ID", required=False)
         cls.INTERNAL_API_SECRET = cls._get_str(data, "Internal-API-Secret", "INTERNAL_API_SECRET", required=False)
         cls.STORE_API_URL = cls._get_str(data, "Store-API-URL", "STORE_API_URL", required=False) or "https://store.csky.dev"

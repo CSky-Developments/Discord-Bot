@@ -45,7 +45,6 @@ def make_help_embed() -> discord.Embed:
         name="Community & Rewards",
         value=(
             "**/invite** — Check your invite count and leaderboard stats.\n"
-            "**/reward** — Claim invite or server booster rewards.\n"
             "**/ping** — Check bot latency."
         ),
         inline=False,

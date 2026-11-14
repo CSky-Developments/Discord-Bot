@@ -16,7 +16,6 @@ from bot.commands import (
     setup_invite_command,
     setup_ticket_command,
     setup_order_command,
-    setup_reward_command,
     setup_staffapp_command,
     setup_embed_command,
     setup_links_command,
@@ -120,7 +119,6 @@ class CSkyBot(discord.Client):
             setup_invite_command(self.tree, guild_target, self.invite_manager)
             setup_ticket_command(self.tree, guild_target, self.ticket_manager)
             setup_order_command(self.tree, guild_target, self.ticket_manager)
-            setup_reward_command(self.tree, guild_target, self.ticket_manager)
             setup_staffapp_command(self.tree, guild_target)
             setup_links_command(self.tree, guild_target)
             setup_store_command(self.tree, guild_target)

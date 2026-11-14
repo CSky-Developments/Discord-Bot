@@ -160,10 +160,8 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
                 return
             if embed_val == "Invite":
                 await channel.send(embed=reward_embeds.make_invite_reward_embed())
-                await channel.send(embed=ticket_embeds.make_reward_embed(), view=buttons.create_reward_claim_view())
             elif embed_val == "Booster":
                 await channel.send(embed=reward_embeds.make_booster_reward_embed())
-                await channel.send(embed=ticket_embeds.make_reward_embed(), view=buttons.create_reward_claim_view())
             else:
                 await interaction.response.send_message("❌ Invalid reward embed type.", ephemeral=True)
                 return

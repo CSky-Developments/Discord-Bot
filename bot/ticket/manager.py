@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import time
 import asyncio
@@ -20,14 +20,12 @@ class TicketData:
     def __init__(self):
         self.normal_ticket_id = 1
         self.order_ticket_id = 1
-        self.reward_ticket_id = 1
         self.staff_app_ticket_id = 1
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "normalTicketID": self.normal_ticket_id,
             "orderTicketID": self.order_ticket_id,
-            "rewardTicketID": self.reward_ticket_id,
             "staffAppTicketID": self.staff_app_ticket_id
         }
 
@@ -36,7 +34,6 @@ class TicketData:
         td = cls()
         td.normal_ticket_id = data.get("normalTicketID", 1)
         td.order_ticket_id = data.get("orderTicketID", 1)
-        td.reward_ticket_id = data.get("rewardTicketID", 1)
         td.staff_app_ticket_id = data.get("staffAppTicketID", 1)
         return td
 
@@ -84,9 +81,6 @@ class TicketManager:
         elif ticket_type == TicketType.ORDER:
             tid = self.ticket_data.order_ticket_id
             self.ticket_data.order_ticket_id = 0 if tid >= 9999 else tid + 1
-        elif ticket_type == TicketType.REWARD:
-            tid = self.ticket_data.reward_ticket_id
-            self.ticket_data.reward_ticket_id = 0 if tid >= 9999 else tid + 1
         elif ticket_type == TicketType.STAFF_APP:
             tid = self.ticket_data.staff_app_ticket_id
             self.ticket_data.staff_app_ticket_id = 0 if tid >= 9999 else tid + 1
@@ -142,25 +136,6 @@ class TicketManager:
         elif custom_id == "Order_Delete_Button":
             await self.handle_delete_ticket(interaction, member, channel, TicketType.ORDER)
 
-        elif custom_id == "Reward_Claim_Button":
-            await self.handle_create_ticket(interaction, member, TicketType.REWARD)
-        elif custom_id == "Reward_Close_Button":
-            await interaction.response.send_message(
-                embed=ticket_embeds.make_reward_close_embed(),
-                view=buttons.create_reward_close_confirm_view(),
-                ephemeral=True
-            )
-        elif custom_id == "Reward_Close_Confirm_Button":
-            await self.handle_close_confirm(interaction, member, channel, TicketType.REWARD)
-        elif custom_id == "Reward_Close_Cancel_Button":
-            await interaction.response.send_message(
-                embed=ticket_embeds.make_reward_close_cancel_embed(),
-                ephemeral=True,
-                delete_after=10
-            )
-        elif custom_id == "Reward_Delete_Button":
-            await self.handle_delete_ticket(interaction, member, channel, TicketType.REWARD)
-
         elif custom_id in ("Developer_Button", "Moderator_Button", "Supporter_Button"):
             await self.handle_create_ticket(interaction, member, TicketType.STAFF_APP, extra=custom_id)
         elif custom_id in ("Developer_Close_Button", "Moderator_Close_Button", "Supporter_Close_Button"):
@@ -184,19 +159,16 @@ class TicketManager:
         emoji_map = {
             TicketType.NORMAL: "ðŸŽ«ãƒ»",
             TicketType.ORDER: "ðŸ›’ãƒ»",
-            TicketType.REWARD: "ðŸŽãƒ»",
             TicketType.STAFF_APP: "ðŸŽ“ãƒ»"
         }
         category_map = {
             TicketType.NORMAL: Config.TICKET_NORMAL,
             TicketType.ORDER: Config.TICKET_ORDER,
-            TicketType.REWARD: Config.TICKET_REWARD,
             TicketType.STAFF_APP: Config.TICKET_STAFF_APP
         }
         name_map = {
             TicketType.NORMAL: "ticket",
             TicketType.ORDER: "order",
-            TicketType.REWARD: "reward ticket",
             TicketType.STAFF_APP: "staff application"
         }
 
@@ -239,7 +211,6 @@ class TicketManager:
         desc_map = {
             TicketType.NORMAL: f"Your ticket has been successfully created in {channel.mention}. We appreciate your patience while we address your request.",
             TicketType.ORDER: f"Your order has been successfully placed in {channel.mention}. We appreciate your patience while our team reviews your request.",
-            TicketType.REWARD: f"Your reward claim ticket has been successfully created in {channel.mention}. Please wait for our team to process your request.",
             TicketType.STAFF_APP: f"Your application has been successfully created in {channel.mention}. We sincerely appreciate your interest in pursuing a position at CSky Developments."
         }
 
@@ -256,8 +227,6 @@ class TicketManager:
             await channel.send(embed=ticket_embeds.make_ticket_create_embed(), view=buttons.create_ticket_close_view())
         elif ticket_type == TicketType.ORDER:
             await channel.send(embed=ticket_embeds.make_order_create_embed(), view=buttons.create_order_close_view())
-        elif ticket_type == TicketType.REWARD:
-            await channel.send(embed=ticket_embeds.make_reward_create_embed(), view=buttons.create_reward_close_view())
         elif ticket_type == TicketType.STAFF_APP:
             if extra == "Moderator_Button":
                 view = buttons.create_moderator_close_view()
@@ -290,13 +259,11 @@ class TicketManager:
         desc_map = {
             TicketType.NORMAL: f"The ticket has been closed by {interaction.user.mention}! Please click on the **Delete** button below to delete the ticket permanently.",
             TicketType.ORDER: f"The order has been canceled by {interaction.user.mention}! Please click on the **Delete** button below to remove the order permanently.",
-            TicketType.REWARD: f"The reward claim ticket has been closed by {interaction.user.mention}! Click on the **Delete** button below to delete the ticket permanently.",
             TicketType.STAFF_APP: f"The application has been closed by {interaction.user.mention}! Please click on the **Delete** button below to delete the application permanently."
         }
         view_map = {
             TicketType.NORMAL: buttons.create_ticket_delete_view(),
             TicketType.ORDER: buttons.create_order_delete_view(),
-            TicketType.REWARD: buttons.create_reward_delete_view(),
             TicketType.STAFF_APP: buttons.create_app_delete_view()
         }
 
@@ -341,7 +308,6 @@ class TicketManager:
         name_map = {
             TicketType.NORMAL: "ticket",
             TicketType.ORDER: "order",
-            TicketType.REWARD: "reward ticket",
             TicketType.STAFF_APP: "staff application"
         }
         ticket_name = name_map.get(ticket_type, "ticket")

@@ -1,3 +1,5 @@
+"""Automatic and self-service Discord Buyer role synchronization (/claim-buyer)."""
+
 from typing import Any
 import aiohttp
 import discord

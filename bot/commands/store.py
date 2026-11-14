@@ -1,3 +1,5 @@
+"""Live CSky Store catalog search and product lookup commands (/store)."""
+
 from typing import Optional
 import aiohttp
 import discord

@@ -91,42 +91,6 @@ def make_order_close_cancel_embed() -> discord.Embed:
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
-def make_reward_embed() -> discord.Embed:
-    embed = discord.Embed(
-        title="**Reward Claim**",
-        description="To claim a reward, simply click on the **Claim** button below.\nOur team will process your request and provide you with the reward as soon as possible.",
-        color=0x4482FF,
-    )
-    embed.set_thumbnail(url=FOOTER_ICON)
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
-def make_reward_create_embed() -> discord.Embed:
-    embed = discord.Embed(
-        title="**Thank you for creating a reward claim ticket.**",
-        description="**Please wait for our team to process your request.** They will be with you shortly. In the meantime, please provide any additional information or details in the ticket. If you change your mind and no longer wish to claim the reward, you can click on the **Cancel** button below.",
-        color=0x4482FF,
-    )
-    embed.set_thumbnail(url=FOOTER_ICON)
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
-def make_reward_close_embed() -> discord.Embed:
-    embed = discord.Embed(
-        description="**Are you sure you want to close this reward claim ticket?**\nPlease click on **Confirm** to proceed with closing the ticket, or click on **Cancel** to keep the ticket open.",
-        color=0x4482FF,
-    )
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
-def make_reward_close_cancel_embed() -> discord.Embed:
-    embed = discord.Embed(
-        description="**The closure of the reward claim ticket has been canceled!**",
-        color=0x4482FF,
-    )
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
 def make_staff_app_embed() -> discord.Embed:
     embed = discord.Embed(
         title="**Staff Application**",

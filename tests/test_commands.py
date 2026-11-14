@@ -7,7 +7,6 @@ from bot.commands.embed import setup_embed_command
 from bot.commands.invite import setup_invite_command
 from bot.commands.ticket import setup_ticket_command
 from bot.commands.order import setup_order_command
-from bot.commands.reward import setup_reward_command
 from bot.commands.staffapp import setup_staffapp_command
 from bot.commands.links import setup_links_command
 from bot.commands.store import setup_store_command
@@ -27,7 +26,6 @@ def test_all_commands_registration():
     setup_invite_command(tree, guild_target, invite_mgr)
     setup_ticket_command(tree, guild_target, ticket_mgr)
     setup_order_command(tree, guild_target, ticket_mgr)
-    setup_reward_command(tree, guild_target, ticket_mgr)
     setup_staffapp_command(tree, guild_target)
     setup_links_command(tree, guild_target)
     setup_store_command(tree, guild_target)
@@ -42,7 +40,7 @@ def test_all_commands_registration():
     assert "ticket" in command_names
     assert "order" in command_names
     assert "plugin" not in command_names
-    assert "reward" in command_names
+    assert "reward" not in command_names
     assert "staffapp" in command_names
     assert "links" in command_names
     assert "status" in command_names

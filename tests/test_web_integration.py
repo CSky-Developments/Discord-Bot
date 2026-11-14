@@ -91,9 +91,6 @@ def test_updated_ticket_and_help_embeds():
     assert "c!" not in help_emb.description
     assert "/store search" in help_emb.fields[0].value
 
-    reward_emb = ticket_embeds.make_reward_embed()
-    assert "example.com" not in (reward_emb.thumbnail.url or "")
-
     order_create = ticket_embeds.make_order_create_embed()
     assert "Killer_Nova" in order_create.description
     assert "csky.dev/terms" in order_create.description

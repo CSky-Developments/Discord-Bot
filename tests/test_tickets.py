@@ -9,21 +9,18 @@ def test_ticket_data_serialization():
     data = TicketData()
     data.normal_ticket_id = 42
     data.order_ticket_id = 15
-    data.reward_ticket_id = 3
     data.staff_app_ticket_id = 99
 
     d = data.to_dict()
     assert d == {
         "normalTicketID": 42,
         "orderTicketID": 15,
-        "rewardTicketID": 3,
         "staffAppTicketID": 99,
     }
 
     reloaded = TicketData.from_dict(d)
     assert reloaded.normal_ticket_id == 42
     assert reloaded.order_ticket_id == 15
-    assert reloaded.reward_ticket_id == 3
     assert reloaded.staff_app_ticket_id == 99
 
 def test_ticket_id_increment_and_rollover(tmp_path):

@@ -114,52 +114,6 @@ def create_order_delete_view() -> View:
     ))
     return view
 
-def create_reward_claim_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.success,
-        label="Claim",
-        custom_id="Reward_Claim_Button",
-        emoji=get_emoji("Gift", 1118971206515818568)
-    ))
-    return view
-
-def create_reward_close_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Close",
-        custom_id="Reward_Close_Button",
-        emoji=get_emoji("GiftClose", 1118971201818202213)
-    ))
-    return view
-
-def create_reward_close_confirm_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.success,
-        label="Confirm",
-        custom_id="Reward_Close_Confirm_Button",
-        emoji=get_emoji("CloseConfirm", 1118942133517295757)
-    ))
-    view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Cancel",
-        custom_id="Reward_Close_Cancel_Button",
-        emoji=get_emoji("CloseCancel", 1118844964273659924)
-    ))
-    return view
-
-def create_reward_delete_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Delete",
-        custom_id="Reward_Delete_Button",
-        emoji=get_emoji("Delete", 1118844967327113316)
-    ))
-    return view
-
 def create_app_create_view() -> View:
     view = View(timeout=None)
     view.add_item(Button(

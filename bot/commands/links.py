@@ -1,3 +1,5 @@
+"""Web ecosystem links and live platform health commands (/links, /status)."""
+
 import time
 import aiohttp
 import discord
