@@ -12,6 +12,7 @@ from bot.config import Config
 from bot.logger import BotLogger
 from bot.ticket.types import TicketType
 from bot.ticket import buttons
+from bot.ticket.modals import CommissionOrderModal, StaffApplicationModal
 from bot.embeds import ticket_embeds, help_embeds
 
 DATA_FILE = os.path.join("data", "ticket_data.json")
@@ -115,7 +116,7 @@ class TicketManager:
             await self.handle_delete_ticket(interaction, member, channel, TicketType.NORMAL)
 
         elif custom_id == "Order_Create_Button":
-            await self.handle_create_ticket(interaction, member, TicketType.ORDER)
+            await interaction.response.send_modal(CommissionOrderModal(self))
         elif custom_id == "Order_Cancel_Button":
             await interaction.response.send_message(
                 embed=ticket_embeds.make_order_close_embed(),
@@ -141,7 +142,8 @@ class TicketManager:
             await self.handle_purchase_ticket(interaction, member)
 
         elif custom_id in ("Developer_Button", "Moderator_Button", "Supporter_Button"):
-            await self.handle_create_ticket(interaction, member, TicketType.STAFF_APP, extra=custom_id)
+            role_name = custom_id.replace("_Button", "")
+            await interaction.response.send_modal(StaffApplicationModal(self, role_name))
         elif custom_id in ("Developer_Close_Button", "Moderator_Close_Button", "Supporter_Close_Button"):
             await interaction.response.send_message(
                 embed=ticket_embeds.make_staff_app_close_embed(),
@@ -636,3 +638,148 @@ class TicketManager:
             + ("" if matched_member else " (buyer not matched in server automatically; use `/ticket add` if needed)."),
             ephemeral=True,
         )
+
+    async def create_order_ticket_from_modal(
+        self,
+        interaction: discord.Interaction,
+        member: discord.abc.User,
+        service: str,
+        track: str,
+        budget: str,
+        specs: str,
+    ):
+        category = self.guild.get_channel(Config.TICKET_ORDER)
+        if not category or not isinstance(category, discord.CategoryChannel):
+            await interaction.response.send_message(
+                "Order ticket category is not configured. Please notify staff.",
+                ephemeral=True,
+            )
+            return
+
+        ticket_id = self.get_ticket_id(TicketType.ORDER)
+        channel_name = f"order-{ticket_id}"
+        staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
+        overwrites = {
+            self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            member: discord.PermissionOverwrite(view_channel=True),
+        }
+        if staff_role:
+            overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            channel = await self.guild.create_text_channel(
+                name=channel_name,
+                category=category,
+                overwrites=overwrites,
+            )
+        except Exception as e:
+            BotLogger.error(f"Failed to create modal order ticket for `{member.name}`: {e}", False)
+            await interaction.followup.send("Failed to create order channel. Check permissions.", ephemeral=True)
+            return
+
+        is_public = "public" in track.lower()
+        brief_embed = discord.Embed(
+            title=f"Commission Request — {service}",
+            url="https://csky.dev/contact",
+            color=0x137333 if is_public else 0x1A73E8,
+        )
+        brief_embed.set_author(name=f"Client: {member.display_name}", icon_url=member.display_avatar.url)
+        brief_embed.add_field(name="Client", value=member.mention, inline=True)
+        brief_embed.add_field(name="Service", value=service, inline=True)
+        brief_embed.add_field(name="Estimated Budget", value=f"`{budget}`", inline=True)
+        brief_embed.add_field(name="Commission Track", value=track, inline=False)
+        brief_embed.add_field(name="Project Specifications & Stack", value=specs, inline=False)
+        brief_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
+        brief_embed.timestamp = discord.utils.utcnow()
+
+        await channel.send(
+            content=f"{member.mention} Your commission order ticket is open.",
+            embeds=[brief_embed, ticket_embeds.make_order_create_embed()],
+            view=buttons.create_order_close_view(),
+        )
+
+        reply_embed = discord.Embed(
+            description=f"Your order ticket has been created in {channel.mention}.",
+            color=0x1A73E8,
+        )
+        reply_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
+        await interaction.followup.send(embed=reply_embed, ephemeral=True)
+
+    async def create_staff_app_ticket_from_modal(
+        self,
+        interaction: discord.Interaction,
+        member: discord.abc.User,
+        role_name: str,
+        age_tz: str,
+        experience: str,
+        role_details: str,
+        availability: str,
+        motivation: str,
+    ):
+        category = self.guild.get_channel(Config.TICKET_STAFF_APP)
+        if not category or not isinstance(category, discord.CategoryChannel):
+            await interaction.response.send_message(
+                "Staff application category is not configured. Please notify staff.",
+                ephemeral=True,
+            )
+            return
+
+        ticket_id = self.get_ticket_id(TicketType.STAFF_APP)
+        channel_name = f"app-{ticket_id}"
+        staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
+        overwrites = {
+            self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            member: discord.PermissionOverwrite(view_channel=True),
+        }
+        if staff_role:
+            overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            channel = await self.guild.create_text_channel(
+                name=channel_name,
+                category=category,
+                overwrites=overwrites,
+            )
+        except Exception as e:
+            BotLogger.error(f"Failed to create modal staff app for `{member.name}`: {e}", False)
+            await interaction.followup.send("Failed to create application channel. Check permissions.", ephemeral=True)
+            return
+
+        app_embed = discord.Embed(
+            title=f"Staff Application — {role_name}",
+            url="https://csky.dev/about",
+            color=0x1A73E8,
+        )
+        app_embed.set_author(name=f"Applicant: {member.display_name}", icon_url=member.display_avatar.url)
+        app_embed.add_field(name="Applicant", value=member.mention, inline=True)
+        app_embed.add_field(name="Age & Timezone", value=f"`{age_tz}`", inline=True)
+        app_embed.add_field(name="Availability", value=f"`{availability}`", inline=True)
+        app_embed.add_field(name="Previous Experience", value=experience, inline=False)
+        app_embed.add_field(name="Role-Specific Details", value=role_details, inline=False)
+        app_embed.add_field(name="Why CSky Developments?", value=motivation, inline=False)
+        app_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
+        app_embed.timestamp = discord.utils.utcnow()
+
+        close_view_map = {
+            "Developer": buttons.create_developer_close_view,
+            "Moderator": buttons.create_moderator_close_view,
+            "Supporter": buttons.create_supporter_close_view,
+        }
+        close_view = close_view_map.get(role_name, buttons.create_ticket_close_view)()
+
+        await channel.send(
+            content=f"{member.mention} Your **{role_name}** application has been submitted.",
+            embeds=[app_embed, ticket_embeds.make_staff_app_create_embed()],
+            view=close_view,
+        )
+
+        reply_embed = discord.Embed(
+            description=f"Your **{role_name}** application has been opened in {channel.mention}.",
+            color=0x1A73E8,
+        )
+        reply_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
+        await interaction.followup.send(embed=reply_embed, ephemeral=True)

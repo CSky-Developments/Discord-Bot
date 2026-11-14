@@ -154,22 +154,24 @@ def create_order_delete_view() -> View:
 def create_app_create_view() -> View:
     view = View(timeout=None)
     view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Developer",
+        style=discord.ButtonStyle.primary,
+        label="Apply: Developer",
         custom_id="Developer_Button",
-        emoji=get_emoji("Developer", 1117845118154711112)
     ))
     view.add_item(Button(
         style=discord.ButtonStyle.success,
-        label="Moderator",
+        label="Apply: Moderator",
         custom_id="Moderator_Button",
-        emoji=get_emoji("Moderator", 1117846138935066738)
     ))
     view.add_item(Button(
-        style=discord.ButtonStyle.primary,
-        label="Supporter",
+        style=discord.ButtonStyle.secondary,
+        label="Apply: Supporter",
         custom_id="Supporter_Button",
-        emoji=get_emoji("Supporter", 1117847120565776444)
+    ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.link,
+        label="Website",
+        url=CSKY_WEBSITE_URL,
     ))
     return view
 
