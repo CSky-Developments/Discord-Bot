@@ -10,7 +10,7 @@ CSKY_ANNOUNCEMENTS_URL = "https://csky.dev/announcements"
 CSKY_STORE_URL = "https://store.csky.dev"
 CSKY_CRAFTER_URL = "https://crafter.csky.dev"
 CSKY_AUTH_URL = "https://auth.csky.dev"
-CSKY_API_URL = "https://api.csky.dev"
+CSKY_LICENSE_URL = "https://license.csky.dev"
 
 def make_help_embed() -> discord.Embed:
     embed = discord.Embed(

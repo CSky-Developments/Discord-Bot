@@ -9,9 +9,9 @@ from bot.embeds.help_embeds import (
     FOOTER_ICON,
     FOOTER_TEXT,
     CSKY_ANNOUNCEMENTS_URL,
-    CSKY_API_URL,
     CSKY_AUTH_URL,
     CSKY_CRAFTER_URL,
+    CSKY_LICENSE_URL,
     CSKY_SERVICES_URL,
     CSKY_STORE_URL,
     CSKY_TERMS_URL,
@@ -24,7 +24,8 @@ HEALTH_ENDPOINTS = [
     ("Website (csky.dev)", f"{CSKY_WEBSITE_URL}/api/health"),
     ("Store (store.csky.dev)", f"{CSKY_STORE_URL}/api/health"),
     ("CSky Studio (crafter.csky.dev)", CSKY_CRAFTER_URL),
-    ("Backend & CLE API (api.csky.dev)", f"{CSKY_API_URL}/health"),
+    ("Auth & Backend (auth.csky.dev)", f"{CSKY_AUTH_URL}/health"),
+    ("Licensing Engine (license.csky.dev)", f"{CSKY_LICENSE_URL}/health"),
 ]
 
 
