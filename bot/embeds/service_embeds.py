@@ -30,69 +30,54 @@ def make_custom_work_embed() -> discord.Embed:
         title="Custom Work & Commissions",
         url=f"{CSKY_WEBSITE_URL}/contact",
         description=(
-            "Production-grade Minecraft plugins, resource packs, and network setups engineered for **20.0 TPS** stability.\n\n"
-            f"Submit a project brief at **[csky.dev/contact]({CSKY_WEBSITE_URL}/contact)** or click **Place Order** below to start a private ticket.\n\u200b"
+            "Production-grade Minecraft engineering built for **20.0 TPS** stability.\n"
+            f"Submit a brief at **[csky.dev/contact]({CSKY_WEBSITE_URL}/contact)** or click **Place Order** below.\n\n"
+            "### What We Build\n"
+            "> **Custom Plugins** — Paper 26.3, Purpur, Folia & Velocity (`Java 21 LTS`)\n"
+            "> **Resource Packs** — 16x–128x textures, GUIs & `Format 97.1`\n"
+            "> **Optimization** — Spark profiling, JVM/GC & database tuning\n"
+            "> **Server Setups** — Complete SMP, PvP & network architectures\n\n"
+            "### Commission Tracks\n"
+            "> **Public Track (40%–60% Off)** — Discounted rate; compiled `.jar` with `CLE v1` *(CSky retains BuiltByBit rights)*\n"
+            "> **Private Track (100% Exclusive)** — Full IP ownership, uncompiled Java/Kotlin source & private war room\n\u200b"
         ),
         color=0x1A73E8,
     )
     embed.set_author(
-        name="CSky Developments • csky.dev/services",
+        name="CSky Developments",
         url=CSKY_SERVICES_URL,
         icon_url=FOOTER_ICON,
     )
     embed.add_field(
-        name="Core Engineering Services",
+        name="Workflow",
         value=(
-            "• **Custom Plugin Development**\n"
-            "  Paper 26.3, Purpur, Folia, and Velocity plugins in Java 21 LTS with async I/O, HikariCP/Redis sync, and zero main-thread stalls.\n\n"
-            "• **Texture & Resource Packs**\n"
-            "  Custom `16x`–`128x` item art, GUIs, and `Pack Format 97.1` bundles (`CustomModelData`, Oraxen / ItemsAdder ready).\n\n"
-            "• **Server Optimization & Profiling**\n"
-            "  Spark profiling audits, JVM & GC flag tuning, chunk/entity balancing, and database query optimization.\n\n"
-            "• **Complete Server Setups**\n"
-            "  End-to-end SMP, PvP, and multi-server network architectures configured and stress-tested for launch.\n\u200b"
-        ),
-        inline=False,
-    )
-    embed.add_field(
-        name="Dual-Track Commission Model",
-        value=(
-            "• **Public Track (40%–60% Discounted)**\n"
-            "  Subsidized upfront fee; delivered as a compiled `.jar` with `CLE v1` licensing while CSky retains BuiltByBit marketplace rights.\n\n"
-            "• **Private Track (100% Exclusive)**\n"
-            "  Complete IP exclusivity, full uncompiled Java 21 / Kotlin source repository access, and a dedicated Discord war room.\n\u200b"
-        ),
-        inline=False,
-    )
-    embed.add_field(
-        name="Delivery Workflow",
-        value=(
-            "1. Scope & Quote (`< 24h`)\n"
-            "2. 50% Deposit & Kickoff\n"
-            "3. Staging Test & Review\n"
-            "4. Final 50% & Handoff"
+            "1. Quote (`< 24h`)\n"
+            "2. 50% Deposit\n"
+            "3. Staging Test\n"
+            "4. 50% Handoff"
         ),
         inline=True,
     )
     embed.add_field(
-        name="Supported Stack",
+        name="Tech Stack",
         value=(
-            "• Paper 26.3 / Purpur\n"
-            "• Folia & Velocity\n"
-            "• Java 21 LTS / Kotlin\n"
-            "• PostgreSQL, MySQL, Redis"
+            "Paper 26.3 / Purpur\n"
+            "Folia & Velocity\n"
+            "Java 21 / Kotlin\n"
+            "Postgres & Redis"
         ),
         inline=True,
     )
     embed.add_field(
-        name="\u200b\nBilling, Warranty & Links",
+        name="Guarantees",
         value=(
-            "• **Warranty:** 14-day complimentary post-delivery bug fix warranty included.\n"
-            "• **Authorized Billing:** Handled only in tickets by **Killer_Nova** or **Arsh** via **Tebex**, **Stripe**, or ticket-verified **UPI**.\n"
-            f"• **Explore:** [Services]({CSKY_SERVICES_URL}) • [Request Form]({CSKY_WEBSITE_URL}/contact) • [Store]({CSKY_STORE_URL}) • [Terms]({CSKY_TERMS_URL})"
+            "20.0 TPS Target\n"
+            "14-Day Warranty\n"
+            "Tebex / Stripe / UPI\n"
+            "Killer_Nova & Arsh"
         ),
-        inline=False,
+        inline=True,
     )
-    embed.set_thumbnail(url=FOOTER_ICON)
+    embed.set_image(url=f"{CSKY_WEBSITE_URL}/og-cover.png")
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
