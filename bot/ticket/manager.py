@@ -461,12 +461,7 @@ class TicketManager:
                 summary_embed.add_field(name=f.name, value=f.value, inline=f.inline)
         summary_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
 
-        intro_line = (
-            f"{matched_member.mention} Your commission request has been accepted by {member.mention}."
-            if matched_member
-            else f"Commission order ticket opened by {member.mention} for **{client_name}** ({contact_raw} — add the client with `/ticket add` once they join)."
-        )
-        await order_channel.send(content=intro_line, embeds=[summary_embed, ticket_embeds.make_order_create_embed()], view=buttons.create_order_close_view())
+        await order_channel.send(embeds=[summary_embed, ticket_embeds.make_order_create_embed()], view=buttons.create_order_close_view())
 
         updated_embed = discord.Embed(
             title=src_embed.title,
@@ -594,13 +589,7 @@ class TicketManager:
                 summary_embed.add_field(name=f.name, value=f.value, inline=f.inline)
         summary_embed.set_footer(text="CSky Store • store.csky.dev", icon_url=help_embeds.FOOTER_ICON)
 
-        intro_line = (
-            f"{matched_member.mention} A support ticket has been opened for your store purchase by {member.mention}."
-            if matched_member
-            else f"Support ticket opened by {member.mention} for buyer **{buyer_raw}** (use `/ticket add` if they join)."
-        )
         await ticket_channel.send(
-            content=intro_line,
             embeds=[summary_embed, ticket_embeds.make_ticket_create_embed()],
             view=buttons.create_ticket_close_view(),
         )
@@ -695,7 +684,6 @@ class TicketManager:
         brief_embed.timestamp = discord.utils.utcnow()
 
         await channel.send(
-            content=f"{member.mention} Your commission order ticket is open.",
             embeds=[brief_embed, ticket_embeds.make_order_create_embed()],
             view=buttons.create_order_close_view(),
         )
@@ -772,7 +760,6 @@ class TicketManager:
         close_view = close_view_map.get(role_name, buttons.create_ticket_close_view)()
 
         await channel.send(
-            content=f"{member.mention} Your **{role_name}** application has been submitted.",
             embeds=[app_embed, ticket_embeds.make_staff_app_create_embed()],
             view=close_view,
         )
