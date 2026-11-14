@@ -99,6 +99,22 @@ def create_commission_request_view(disabled: bool = False) -> View:
     ))
     return view
 
+
+def create_purchase_view(product_url: str = "https://store.csky.dev", disabled: bool = False) -> View:
+    view = View(timeout=None)
+    view.add_item(Button(
+        style=discord.ButtonStyle.success,
+        label="Open Ticket with Buyer",
+        custom_id="Purchase_Ticket_Button",
+        disabled=disabled,
+    ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.link,
+        label="View Product",
+        url=product_url,
+    ))
+    return view
+
 def create_order_close_view() -> View:
     view = View(timeout=None)
     view.add_item(Button(

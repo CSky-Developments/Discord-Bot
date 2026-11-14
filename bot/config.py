@@ -20,6 +20,7 @@ class Config:
 
     BUYER_ROLE_ID: int = 0
     REQUESTS_CHANNEL_ID: int = 0
+    SALES_CHANNEL_ID: int = 0
     INTERNAL_API_SECRET: str = ""
     INTERNAL_HTTP_PORT: int = 8080
     STORE_API_URL: str = "https://store.csky.dev"
@@ -58,6 +59,7 @@ class Config:
         cls.TICKET_STAFF_APP = cls._get_int(data, "Ticket-Staff-App-Category", "TICKET_STAFF_APP_CATEGORY")
         cls.BUYER_ROLE_ID = cls._get_int(data, "Buyer-Role-ID", "BUYER_ROLE_ID", required=False)
         cls.REQUESTS_CHANNEL_ID = cls._get_int(data, "Requests-Channel-ID", "REQUESTS_CHANNEL_ID", required=False)
+        cls.SALES_CHANNEL_ID = cls._get_int(data, "Sales-Channel-ID", "SALES_CHANNEL_ID", required=False)
         cls.INTERNAL_API_SECRET = cls._get_str(data, "Internal-API-Secret", "INTERNAL_API_SECRET", required=False)
         cls.INTERNAL_HTTP_PORT = cls._get_int(data, "Internal-HTTP-Port", "INTERNAL_HTTP_PORT", required=False) or 8080
         cls.STORE_API_URL = cls._get_str(data, "Store-API-URL", "STORE_API_URL", required=False) or "https://store.csky.dev"

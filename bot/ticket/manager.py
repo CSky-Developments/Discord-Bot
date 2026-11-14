@@ -140,6 +140,8 @@ class TicketManager:
             await self.handle_commission_accept(interaction, member)
         elif custom_id == "Commission_Decline_Button":
             await self.handle_commission_decline(interaction, member)
+        elif custom_id == "Purchase_Ticket_Button":
+            await self.handle_purchase_ticket(interaction, member)
 
         elif custom_id in ("Developer_Button", "Moderator_Button", "Supporter_Button"):
             await self.handle_create_ticket(interaction, member, TicketType.STAFF_APP, extra=custom_id)
@@ -526,3 +528,114 @@ class TicketManager:
 
         await interaction.message.edit(embed=updated_embed, view=buttons.create_commission_request_view(disabled=True))
         await interaction.response.send_message("Commission request declined.", ephemeral=True, delete_after=10)
+
+    async def handle_purchase_ticket(self, interaction: discord.Interaction, member: discord.abc.User):
+        if not self._is_staff_member(member):
+            await interaction.response.send_message(
+                "Only staff members can open support tickets from purchase logs.",
+                ephemeral=True,
+                delete_after=10,
+            )
+            return
+
+        if not interaction.message or not interaction.message.embeds:
+            await interaction.response.send_message("Purchase details not found on this message.", ephemeral=True)
+            return
+
+        category = self.guild.get_channel(Config.TICKET_NORMAL)
+        if not category or not isinstance(category, discord.CategoryChannel):
+            await interaction.response.send_message("Support ticket category is not configured.", ephemeral=True)
+            return
+
+        src_embed = interaction.message.embeds[0]
+        field_map = {f.name: f.value for f in src_embed.fields}
+        buyer_raw = field_map.get("Buyer", "Customer")
+
+        matched_member = None
+        mention_match = re.search(r"<@!?(\d{17,20})>", buyer_raw)
+        if mention_match:
+            matched_member = self.guild.get_member(int(mention_match.group(1)))
+        if not matched_member:
+            matched_member = self._resolve_member_from_contact(buyer_raw.split("(")[0].strip())
+
+        ticket_id = self.get_ticket_id(TicketType.NORMAL)
+        channel_name = f"ticket-{ticket_id}"
+
+        staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
+        overwrites = {
+            self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        }
+        if staff_role:
+            overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+        if isinstance(member, discord.Member):
+            overwrites[member] = discord.PermissionOverwrite(view_channel=True)
+        if matched_member:
+            overwrites[matched_member] = discord.PermissionOverwrite(view_channel=True)
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            ticket_channel = await self.guild.create_text_channel(
+                name=channel_name,
+                category=category,
+                overwrites=overwrites,
+            )
+        except Exception as e:
+            BotLogger.error(f"Failed to create purchase support ticket: {e}", True)
+            await interaction.followup.send("Failed to create support ticket channel.", ephemeral=True)
+            return
+
+        summary_embed = discord.Embed(
+            title=src_embed.title or "Store Purchase Support",
+            url=src_embed.url,
+            color=0x16A34A,
+        )
+        for f in src_embed.fields:
+            if f.name != "Ticket":
+                summary_embed.add_field(name=f.name, value=f.value, inline=f.inline)
+        summary_embed.set_footer(text="CSky Store • store.csky.dev", icon_url=help_embeds.FOOTER_ICON)
+
+        intro_line = (
+            f"{matched_member.mention} A support ticket has been opened for your store purchase by {member.mention}."
+            if matched_member
+            else f"Support ticket opened by {member.mention} for buyer **{buyer_raw}** (use `/ticket add` if they join)."
+        )
+        await ticket_channel.send(
+            content=intro_line,
+            embeds=[summary_embed, ticket_embeds.make_ticket_create_embed()],
+            view=buttons.create_ticket_close_view(),
+        )
+
+        updated_embed = discord.Embed(
+            title=src_embed.title,
+            url=src_embed.url,
+            description=src_embed.description,
+            color=src_embed.color or 0x16A34A,
+            timestamp=src_embed.timestamp,
+        )
+        if src_embed.author:
+            updated_embed.set_author(
+                name=src_embed.author.name,
+                url=src_embed.author.url,
+                icon_url=src_embed.author.icon_url,
+            )
+        for f in src_embed.fields:
+            if f.name != "Ticket":
+                updated_embed.add_field(name=f.name, value=f.value, inline=f.inline)
+        updated_embed.add_field(
+            name="Ticket",
+            value=f"{ticket_channel.mention} (opened by {member.mention})",
+            inline=False,
+        )
+        if src_embed.image and src_embed.image.url:
+            updated_embed.set_image(url=src_embed.image.url)
+        if src_embed.footer:
+            updated_embed.set_footer(text=src_embed.footer.text, icon_url=src_embed.footer.icon_url)
+
+        product_url = src_embed.url or "https://store.csky.dev"
+        await interaction.message.edit(embed=updated_embed, view=buttons.create_purchase_view(product_url, disabled=True))
+        await interaction.followup.send(
+            f"Support ticket created: {ticket_channel.mention}"
+            + ("" if matched_member else " (buyer not matched in server automatically; use `/ticket add` if needed)."),
+            ephemeral=True,
+        )
