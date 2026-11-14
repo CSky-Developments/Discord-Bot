@@ -53,7 +53,7 @@ def make_store_search_embed(
             engine = item.get("testedEngine") or "Paper"
             rating = item.get("rating")
             reviews_count = item.get("reviewsCount", 0)
-            rating_str = f"⭐ {rating:.1f} ({reviews_count})" if rating and reviews_count else "New"
+            rating_str = f"Rating {rating:.1f}/5 ({reviews_count})" if rating and reviews_count else "New"
             url = f"{CSKY_STORE_URL}/products/{slug}" if slug else CSKY_STORE_URL
             embed.add_field(
                 name=f"{title} — `{price_str}`",
@@ -146,14 +146,14 @@ def setup_store_command(tree: app_commands.CommandTree, guild: discord.Object):
                 ) as resp:
                     if resp.status != 200:
                         await interaction.followup.send(
-                            f"⚠️ Store API returned `HTTP {resp.status}`. Browse directly at {CSKY_STORE_URL}",
+                            f"Store API returned `HTTP {resp.status}`. Browse directly at {CSKY_STORE_URL}",
                             ephemeral=True,
                         )
                         return
                     data = await resp.json()
         except Exception:
             await interaction.followup.send(
-                f"⚠️ Could not reach `store.csky.dev` right now. Visit {CSKY_STORE_URL} directly.",
+                f"Could not reach `store.csky.dev` right now. Visit {CSKY_STORE_URL} directly.",
                 ephemeral=True,
             )
             return
@@ -175,27 +175,27 @@ def setup_store_command(tree: app_commands.CommandTree, guild: discord.Object):
                 ) as resp:
                     if resp.status == 404:
                         await interaction.followup.send(
-                            f"❌ No product found for slug `{clean_slug}`. Try `/store search` or visit {CSKY_STORE_URL}.",
+                            f"No product found for slug `{clean_slug}`. Try `/store search` or visit {CSKY_STORE_URL}.",
                             ephemeral=True,
                         )
                         return
                     if resp.status != 200:
                         await interaction.followup.send(
-                            f"⚠️ Store API returned `HTTP {resp.status}`. Visit {CSKY_STORE_URL}.",
+                            f"Store API returned `HTTP {resp.status}`. Visit {CSKY_STORE_URL}.",
                             ephemeral=True,
                         )
                         return
                     data = await resp.json()
         except Exception:
             await interaction.followup.send(
-                f"⚠️ Could not reach `store.csky.dev` right now. Visit {CSKY_STORE_URL}.",
+                f"Could not reach `store.csky.dev` right now. Visit {CSKY_STORE_URL}.",
                 ephemeral=True,
             )
             return
 
         product = data.get("product")
         if not product:
-            await interaction.followup.send(f"❌ Product `{clean_slug}` not found.", ephemeral=True)
+            await interaction.followup.send(f"Product `{clean_slug}` not found.", ephemeral=True)
             return
 
         product_url = f"{CSKY_STORE_URL}/products/{product.get('slug', clean_slug)}"

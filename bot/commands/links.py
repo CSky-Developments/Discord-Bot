@@ -68,10 +68,9 @@ def make_status_embed(results: list[tuple[str, bool, int, str]]) -> discord.Embe
         color=0x16A34A if all_ok else 0xF59E0B,
     )
     for name, ok, elapsed_ms, detail in results:
-        icon = "🟢" if ok else "🔴"
         state = "Operational" if ok else "Degraded"
         embed.add_field(
-            name=f"{icon} {name}",
+            name=name,
             value=f"`{state}` • `{elapsed_ms}ms` ({detail})",
             inline=False,
         )
