@@ -4,7 +4,6 @@ import pytest
 
 from bot.commands.ping import setup_ping_command
 from bot.commands.embed import setup_embed_command
-from bot.commands.invite import setup_invite_command
 from bot.commands.ticket import setup_ticket_command
 from bot.commands.order import setup_order_command
 from bot.commands.staffapp import setup_staffapp_command
@@ -17,12 +16,10 @@ def test_all_commands_registration():
     tree = app_commands.CommandTree(client)
     guild_target = discord.Object(id=1111724818614722690)
 
-    invite_mgr = MagicMock()
     ticket_mgr = MagicMock()
 
     setup_ping_command(tree, guild_target)
     setup_embed_command(tree, guild_target)
-    setup_invite_command(tree, guild_target, invite_mgr)
     setup_ticket_command(tree, guild_target, ticket_mgr)
     setup_order_command(tree, guild_target, ticket_mgr)
     setup_staffapp_command(tree, guild_target)
@@ -34,7 +31,7 @@ def test_all_commands_registration():
 
     assert "ping" in command_names
     assert "embed" in command_names
-    assert "invite" in command_names
+    assert "invite" not in command_names
     assert "ticket" in command_names
     assert "order" in command_names
     assert "plugin" not in command_names

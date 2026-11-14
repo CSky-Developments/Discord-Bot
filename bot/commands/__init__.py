@@ -1,5 +1,4 @@
 from bot.commands.ping import setup_ping_command
-from bot.commands.invite import setup_invite_command
 from bot.commands.ticket import setup_ticket_command
 from bot.commands.order import setup_order_command
 from bot.commands.staffapp import setup_staffapp_command
@@ -9,7 +8,6 @@ from bot.commands.store import setup_store_command
 
 __all__ = [
     "setup_ping_command",
-    "setup_invite_command",
     "setup_ticket_command",
     "setup_order_command",
     "setup_staffapp_command",

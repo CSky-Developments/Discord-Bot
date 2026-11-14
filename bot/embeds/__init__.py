@@ -4,10 +4,6 @@ from bot.embeds.help_embeds import (
     make_help_embed,
     make_not_available_embed,
 )
-from bot.embeds.reward_embeds import (
-    make_invite_reward_embed,
-    make_booster_reward_embed,
-)
 from bot.embeds.service_embeds import (
     make_building_embed,
     make_server_setup_embed,

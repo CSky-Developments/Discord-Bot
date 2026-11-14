@@ -12,15 +12,6 @@ def test_help_embeds():
     assert isinstance(not_avail, discord.Embed)
     assert "currently not available" in not_avail.description
 
-def test_reward_embeds():
-    inv_emb = embeds.make_invite_reward_embed()
-    assert isinstance(inv_emb, discord.Embed)
-    assert inv_emb.title == "Invite・Rewards"
-
-    boost_emb = embeds.make_booster_reward_embed()
-    assert isinstance(boost_emb, discord.Embed)
-    assert boost_emb.title == "Boost・Rewards"
-
 def test_service_embeds():
     building = embeds.make_building_embed()
     assert isinstance(building, discord.Embed)

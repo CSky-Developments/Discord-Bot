@@ -35,7 +35,7 @@ def make_store_search_embed(
 
     embed = discord.Embed(
         title="CSky Store — Catalog",
-        description=f"{subtitle}\nBrowse all products at [{CSKY_STORE_URL}]({CSKY_STORE_URL})",
+        description=f"{subtitle}\nBrowse all products at [store.csky.dev]({CSKY_STORE_URL})",
         color=0x2563EB,
     )
     if not products:

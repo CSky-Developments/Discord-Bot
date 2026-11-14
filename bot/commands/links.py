@@ -33,10 +33,10 @@ def make_links_embed() -> discord.Embed:
         title="CSky Developments — Web Ecosystem",
         description=(
             "Explore our official platforms, store, and AI plugin studio:\n\n"
-            f"• **Agency & Services:** [{CSKY_WEBSITE_URL}]({CSKY_WEBSITE_URL}) ([Services]({CSKY_SERVICES_URL}))\n"
-            f"• **Digital Store:** [{CSKY_STORE_URL}]({CSKY_STORE_URL})\n"
-            f"• **CSky Studio (AI Builder):** [{CSKY_CRAFTER_URL}]({CSKY_CRAFTER_URL})\n"
-            f"• **Account & SSO Portal:** [{CSKY_AUTH_URL}]({CSKY_AUTH_URL})\n"
+            f"• **Agency & Services:** [csky.dev]({CSKY_WEBSITE_URL}) ([Services]({CSKY_SERVICES_URL}))\n"
+            f"• **Digital Store:** [store.csky.dev]({CSKY_STORE_URL})\n"
+            f"• **CSky Studio (AI Builder):** [crafter.csky.dev]({CSKY_CRAFTER_URL})\n"
+            f"• **Account & SSO Portal:** [auth.csky.dev]({CSKY_AUTH_URL})\n"
             f"• **Announcements:** [csky.dev/announcements]({CSKY_ANNOUNCEMENTS_URL})\n"
             f"• **Terms & Policies:** [csky.dev/terms]({CSKY_TERMS_URL})"
         ),

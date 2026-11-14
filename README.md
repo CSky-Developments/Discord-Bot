@@ -5,7 +5,6 @@ A custom Discord bot tailored for CSky Developments built with Python 3.12+ and 
 ## Features
 - **Tickets**: Support ticketing system with categories (Support, Order, Staff Application).
 - **Web & Store Sync**: `/links`, `/status`, `/store`, and automatic Buyer role sync with `store.csky.dev`.
-- **Invites**: Tracks user invites, member roles, and persists invite counts.
 - **Counting Game**: Channel-based counting minigame with milestone tracking and double-count prevention.
 - **Message Auditing**: Non-intrusive LRU audit logger for message deletes and edits.
 

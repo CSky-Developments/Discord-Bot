@@ -41,11 +41,8 @@ def make_help_embed() -> discord.Embed:
         inline=False,
     )
     embed.add_field(
-        name="Community & Rewards",
-        value=(
-            "**/invite** — Check your invite count and leaderboard stats.\n"
-            "**/ping** — Check bot latency."
-        ),
+        name="Utilities",
+        value="**/ping** — Check bot latency.",
         inline=False,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)

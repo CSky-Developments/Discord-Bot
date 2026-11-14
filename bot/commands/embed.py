@@ -4,7 +4,6 @@ from discord import app_commands
 from bot.ticket import buttons
 from bot.embeds import (
     help_embeds,
-    reward_embeds,
     service_embeds,
     ticket_embeds,
 )
@@ -20,13 +19,10 @@ CATEGORIES = [
     "Plugin Development",
     "Ticket",
     "Order",
-    "Reward",
     "Staff Application",
 ]
 
 EMBED_TYPES = [
-    "Invite",
-    "Booster",
     "Dirt Plan",
     "Wood Plan",
     "Coal Plan",
@@ -65,7 +61,7 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
         embed_val = embed.value if embed else None
         channel = interaction.channel
 
-        if send_all and embed_val and cat_val != "Reward":
+        if send_all and embed_val:
             await interaction.response.send_message(
                 "❌ Cannot specify an embed and also use 'send_all' for this category. Please choose one.",
                 ephemeral=True
@@ -98,18 +94,6 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
             elif cat_val == "Plugin Development":
                 await channel.send(embed=service_embeds.make_plugin_development_embed())
                 await channel.send(embed=service_embeds.make_service_order_embed(color=0x938FF1), view=buttons.create_order_create_view())
-            elif cat_val == "Reward":
-                if embed_val:
-                    if embed_val == "Invite":
-                        await channel.send(embed=reward_embeds.make_invite_reward_embed())
-                    elif embed_val == "Booster":
-                        await channel.send(embed=reward_embeds.make_booster_reward_embed())
-                    else:
-                        await interaction.response.send_message("❌ Invalid reward embed type. Please select either `Invite` or `Booster`.", ephemeral=True)
-                        return
-                else:
-                    await channel.send(embed=reward_embeds.make_invite_reward_embed())
-                    await channel.send(embed=reward_embeds.make_booster_reward_embed())
             elif cat_val == "Hosting Services":
                 hosting_embeds = [
                     service_embeds.make_dirt_plan_embed(),
@@ -154,18 +138,6 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
             await send_with_order(service_embeds.make_server_optimization_embed())
         elif cat_val == "Plugin Development":
             await send_with_order(service_embeds.make_plugin_development_embed())
-        elif cat_val == "Reward":
-            if not embed_val:
-                await interaction.response.send_message("❌ Please select either `Invite` or `Booster` reward embed.", ephemeral=True)
-                return
-            if embed_val == "Invite":
-                await channel.send(embed=reward_embeds.make_invite_reward_embed())
-            elif embed_val == "Booster":
-                await channel.send(embed=reward_embeds.make_booster_reward_embed())
-            else:
-                await interaction.response.send_message("❌ Invalid reward embed type.", ephemeral=True)
-                return
-            await send_confirmation()
         elif cat_val == "Hosting Services":
             if not embed_val:
                 await interaction.response.send_message("❌ Please specify a hosting embed to send.", ephemeral=True)

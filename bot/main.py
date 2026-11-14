@@ -7,13 +7,10 @@ from discord import app_commands
 from bot.config import Config
 from bot.logger import BotLogger
 from bot.game.counting import CountingGame
-from bot.invite.manager import InviteManager
-from bot.invite.tracker import InviteTracker
 from bot.message.manager import MessageManager
 from bot.ticket.manager import TicketManager
 from bot.commands import (
     setup_ping_command,
-    setup_invite_command,
     setup_ticket_command,
     setup_order_command,
     setup_staffapp_command,
@@ -29,8 +26,6 @@ class CSkyBot(discord.Client):
         self.tree = app_commands.CommandTree(self)
         self.guild_obj: discord.Guild | None = None
         self.ticket_manager: TicketManager | None = None
-        self.invite_manager: InviteManager | None = None
-        self.invite_tracker: InviteTracker | None = None
         self.message_manager: MessageManager | None = None
         self.counting_game: CountingGame | None = None
 
@@ -78,17 +73,6 @@ class CSkyBot(discord.Client):
             await self.close()
             sys.exit(1)
 
-        # Initialize Invite Tracker
-        try:
-            self.invite_manager = InviteManager()
-            self.invite_tracker = InviteTracker(self.guild_obj, self.invite_manager)
-            await self.invite_tracker.initialize()
-        except Exception as ex:
-            BotLogger.error(f"Failed to initialize invite tracker. :( Error: {ex}", False)
-            BotLogger.warn("Bot has crashed! Please check the code of invite tracker.", False)
-            await self.close()
-            sys.exit(1)
-
         # Initialize Message Manager
         BotLogger.info("Initializing message manager...", False)
         try:
@@ -115,7 +99,6 @@ class CSkyBot(discord.Client):
         try:
             setup_ping_command(self.tree, guild_target)
             setup_embed_command(self.tree, guild_target)
-            setup_invite_command(self.tree, guild_target, self.invite_manager)
             setup_ticket_command(self.tree, guild_target, self.ticket_manager)
             setup_order_command(self.tree, guild_target, self.ticket_manager)
             setup_staffapp_command(self.tree, guild_target)
@@ -156,14 +139,39 @@ class CSkyBot(discord.Client):
         if self.message_manager:
             self.message_manager.handle_message_edit(before, after)
 
+        await self._update_member_count()
+
+    async def _update_member_count(self):
+        if not self.guild_obj or not Config.MEMBER_COUNT_CHANNEL_ID:
+            return
+        channel = self.guild_obj.get_channel(Config.MEMBER_COUNT_CHANNEL_ID)
+        if not channel:
+            return
+        member_count = sum(1 for m in self.guild_obj.members if not m.bot)
+        desired_name = f"😎・Members: {member_count}"
+        if channel.name != desired_name:
+            try:
+                await channel.edit(name=desired_name)
+            except Exception as ex:
+                BotLogger.warn(f"Failed to update member count channel: {ex}", False)
+
     async def on_member_join(self, member: discord.Member):
-        if self.invite_tracker:
-            await self.invite_tracker.on_member_join(member)
+        if not self.guild_obj or member.guild.id != self.guild_obj.id or member.bot:
+            return
+        if Config.MEMBER_ROLE_ID:
+            role = self.guild_obj.get_role(Config.MEMBER_ROLE_ID)
+            if role and role not in member.roles:
+                try:
+                    await member.add_roles(role, reason="Auto member role on join")
+                except Exception as ex:
+                    BotLogger.warn(f"Failed to add member role to {member.id}: {ex}", False)
+        await self._update_member_count()
         await sync_buyer_role(member)
 
     async def on_member_remove(self, member: discord.Member):
-        if self.invite_tracker:
-            await self.invite_tracker.on_member_remove(member)
+        if not self.guild_obj or member.guild.id != self.guild_obj.id or member.bot:
+            return
+        await self._update_member_count()
 
     async def on_interaction(self, interaction: discord.Interaction):
         # Component interactions (buttons)
@@ -179,7 +187,6 @@ def main():
 
     intents = discord.Intents.default()
     intents.members = True
-    intents.invites = True
     intents.presences = True
     intents.message_content = True
     intents.guild_messages = True
