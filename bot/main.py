@@ -19,6 +19,7 @@ from bot.commands import (
     setup_store_command,
 )
 from bot.commands.buyer import sync_buyer_role
+from bot.internal_api import start_internal_api
 
 class CSkyBot(discord.Client):
     def __init__(self, intents: discord.Intents):
@@ -28,6 +29,7 @@ class CSkyBot(discord.Client):
         self.ticket_manager: TicketManager | None = None
         self.message_manager: MessageManager | None = None
         self.counting_game: CountingGame | None = None
+        self._internal_api_runner = None
 
     async def setup_hook(self):
         # Configure global tree error handler
@@ -118,6 +120,13 @@ class CSkyBot(discord.Client):
         log_channel = self.guild_obj.get_channel(Config.LOG_CHANNEL_ID)
         if isinstance(log_channel, discord.TextChannel):
             BotLogger.set_log_channel(log_channel, asyncio.get_running_loop())
+
+        if self._internal_api_runner is None:
+            try:
+                self._internal_api_runner = await start_internal_api(self)
+            except Exception as ex:
+                BotLogger.error(f"Failed to start internal bot API: {ex}", False)
+
         BotLogger.info("CSky Development's bot is now online!", True)
 
     async def on_message(self, message: discord.Message):

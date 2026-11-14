@@ -64,7 +64,11 @@ def create_order_create_view() -> View:
         style=discord.ButtonStyle.success,
         label="Place Order",
         custom_id="Order_Create_Button",
-        emoji=get_emoji("Order", 1118978541871181915)
+    ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.link,
+        label="Request on Website",
+        url=f"{CSKY_WEBSITE_URL}/contact",
     ))
     view.add_item(Button(
         style=discord.ButtonStyle.link,
@@ -75,6 +79,23 @@ def create_order_create_view() -> View:
         style=discord.ButtonStyle.link,
         label="Terms",
         url=CSKY_TERMS_URL,
+    ))
+    return view
+
+
+def create_commission_request_view(disabled: bool = False) -> View:
+    view = View(timeout=None)
+    view.add_item(Button(
+        style=discord.ButtonStyle.success,
+        label="Accept & Start Order Ticket",
+        custom_id="Commission_Accept_Button",
+        disabled=disabled,
+    ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.danger,
+        label="Decline",
+        custom_id="Commission_Decline_Button",
+        disabled=disabled,
     ))
     return view
 

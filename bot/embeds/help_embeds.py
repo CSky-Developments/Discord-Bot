@@ -50,9 +50,9 @@ def make_help_embed() -> discord.Embed:
 
 def make_not_available_embed() -> discord.Embed:
     embed = discord.Embed(
-        title="🚫 Service Unavailable",
-        description="**This service is currently not available.** \nPlease check back later or contact us for more information.\n",
-        color=0xFF4C4C,
+        title="Service Unavailable",
+        description="This service is currently unavailable.\nPlease check back later or open a support ticket for more information.",
+        color=0xDC2626,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed

@@ -20,6 +20,7 @@ from bot.embeds.service_embeds import (
     make_server_optimization_embed,
     make_plugin_development_embed,
     make_service_order_embed,
+    make_custom_work_embed,
 )
 from bot.embeds.ticket_embeds import (
     make_ticket_embed,

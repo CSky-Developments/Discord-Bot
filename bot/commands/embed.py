@@ -10,16 +10,12 @@ from bot.embeds import (
 from bot.commands.ticket import is_staff, make_no_permission_embed
 
 CATEGORIES = [
-    "Service Not Available",
-    "Building",
-    "Texture Pack",
-    "Server Setup",
-    "Hosting Services",
-    "Server Optimization",
-    "Plugin Development",
-    "Ticket",
+    "Custom Work",
     "Order",
+    "Ticket",
     "Staff Application",
+    "Hosting Services",
+    "Service Not Available",
 ]
 
 EMBED_TYPES = [
@@ -63,37 +59,19 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
 
         if send_all and embed_val:
             await interaction.response.send_message(
-                "❌ Cannot specify an embed and also use 'send_all' for this category. Please choose one.",
+                "Cannot specify an embed and also use 'send_all' for this category. Please choose one.",
                 ephemeral=True
             )
             return
 
         async def send_confirmation():
-            await interaction.response.send_message("✅ Sent!", ephemeral=True, delete_after=10)
-
-        async def send_with_order(emb: discord.Embed):
-            await channel.send(embed=emb)
-            await channel.send(embed=ticket_embeds.make_order_embed(), view=buttons.create_order_create_view())
-            await send_confirmation()
+            await interaction.response.send_message("Sent.", ephemeral=True, delete_after=10)
 
         if send_all:
             if cat_val == "Service Not Available":
                 await channel.send(embed=help_embeds.make_not_available_embed())
-            elif cat_val == "Building":
-                await channel.send(embed=service_embeds.make_building_embed())
-                await channel.send(embed=service_embeds.make_service_order_embed(color=0xF35A46), view=buttons.create_order_create_view())
-            elif cat_val == "Texture Pack":
-                await channel.send(embed=service_embeds.make_texture_pack_embed())
-                await channel.send(embed=service_embeds.make_service_order_embed(color=0x6AAFB8), view=buttons.create_order_create_view())
-            elif cat_val == "Server Setup":
-                await channel.send(embed=service_embeds.make_server_setup_embed())
-                await channel.send(embed=service_embeds.make_service_order_embed(color=0x4DAEE1), view=buttons.create_order_create_view())
-            elif cat_val == "Server Optimization":
-                await channel.send(embed=service_embeds.make_server_optimization_embed())
-                await channel.send(embed=service_embeds.make_service_order_embed(color=0xE5B432), view=buttons.create_order_create_view())
-            elif cat_val == "Plugin Development":
-                await channel.send(embed=service_embeds.make_plugin_development_embed())
-                await channel.send(embed=service_embeds.make_service_order_embed(color=0x938FF1), view=buttons.create_order_create_view())
+            elif cat_val == "Custom Work":
+                await channel.send(embed=service_embeds.make_custom_work_embed(), view=buttons.create_order_create_view())
             elif cat_val == "Hosting Services":
                 hosting_embeds = [
                     service_embeds.make_dirt_plan_embed(),
@@ -128,16 +106,9 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
         elif cat_val == "Staff Application":
             await channel.send(embed=ticket_embeds.make_staff_app_embed(), view=buttons.create_app_create_view())
             await send_confirmation()
-        elif cat_val == "Building":
-            await send_with_order(service_embeds.make_building_embed())
-        elif cat_val == "Texture Pack":
-            await send_with_order(service_embeds.make_texture_pack_embed())
-        elif cat_val == "Server Setup":
-            await send_with_order(service_embeds.make_server_setup_embed())
-        elif cat_val == "Server Optimization":
-            await send_with_order(service_embeds.make_server_optimization_embed())
-        elif cat_val == "Plugin Development":
-            await send_with_order(service_embeds.make_plugin_development_embed())
+        elif cat_val == "Custom Work":
+            await channel.send(embed=service_embeds.make_custom_work_embed(), view=buttons.create_order_create_view())
+            await send_confirmation()
         elif cat_val == "Hosting Services":
             if not embed_val:
                 await interaction.response.send_message("❌ Please specify a hosting embed to send.", ephemeral=True)

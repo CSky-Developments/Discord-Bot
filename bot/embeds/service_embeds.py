@@ -2,6 +2,7 @@ import discord
 from bot.embeds.help_embeds import (
     FOOTER_TEXT,
     FOOTER_ICON,
+    CSKY_WEBSITE_URL,
     CSKY_SERVICES_URL,
     CSKY_TERMS_URL,
     CSKY_STORE_URL,
@@ -173,16 +174,70 @@ def make_plugin_development_embed() -> discord.Embed:
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
-def make_service_order_embed(color: int = 0x4482FF) -> discord.Embed:
+def make_service_order_embed(color: int = 0x1A73E8) -> discord.Embed:
     embed = discord.Embed(
-        title="**Order Service**",
+        title="Order Service",
         description=(
-            "To place an order, click **Place Order** below and our team will scope your request in a private ticket.\n\n"
-            f"• **Full Services:** [csky.dev/services]({CSKY_SERVICES_URL})\n"
+            "To place an order, click **Place Order** below or submit your specs on our website.\n\n"
+            f"• **Request Form:** [csky.dev/contact]({CSKY_WEBSITE_URL}/contact)\n"
+            f"• **Services & Stack:** [csky.dev/services]({CSKY_SERVICES_URL})\n"
             f"• **Ready-Made Store:** [store.csky.dev]({CSKY_STORE_URL})\n"
             f"• **Terms & 14-Day Warranty:** [csky.dev/terms]({CSKY_TERMS_URL})"
         ),
         color=color,
     )
+    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
+    return embed
+
+
+def make_custom_work_embed() -> discord.Embed:
+    embed = discord.Embed(
+        title="CSky Developments — Custom Work & Commissions",
+        url=f"{CSKY_WEBSITE_URL}/contact",
+        description=(
+            "High-performance Minecraft engineering tailored to your server. "
+            "Submit a request directly on **[csky.dev/contact](https://csky.dev/contact)** or open an order ticket below."
+        ),
+        color=0x1A73E8,
+    )
+    embed.add_field(
+        name="Services Offered",
+        value=(
+            "• **Custom Plugin Development** — Paper 26.3, Purpur, Folia, Velocity, Java 21 LTS (`20.0 TPS` standard)\n"
+            "• **Texture & Resource Packs** — `16x`–`128x` items, custom GUIs, Pack Format `97.1`\n"
+            "• **Server Configuration & Optimization** — Spark profiling, JVM/GC tuning, HikariCP pooling\n"
+            "• **Complete Server Setups** — Full SMP, PvP, or network gamemode architectures"
+        ),
+        inline=False,
+    )
+    embed.add_field(
+        name="Public Track (40%–60% Discounted)",
+        value=(
+            "• Subsidized upfront development fee\n"
+            "• Compiled `.jar` with CSky Licensing Engine (`CLE v1`)\n"
+            "• CSky retains BuiltByBit marketplace rights"
+        ),
+        inline=True,
+    )
+    embed.add_field(
+        name="Private Track (100% Exclusive)",
+        value=(
+            "• 100% exclusive IP to your server network\n"
+            "• Full uncompiled Java 21 / Kotlin source access\n"
+            "• Dedicated Discord war room & staging access"
+        ),
+        inline=True,
+    )
+    embed.add_field(
+        name="Commercial & Billing Policy",
+        value=(
+            "• **Milestones:** 50% upfront deposit, 50% on final sandbox approval\n"
+            "• **Warranty:** 14-day post-delivery bug fix warranty included\n"
+            "• **Authorized Billing:** Handled only in tickets by **Killer_Nova** or **Arsh** via **Tebex**, **Stripe**, or ticket-verified **UPI**\n"
+            f"• **Full Details:** [Services]({CSKY_SERVICES_URL}) • [Terms]({CSKY_TERMS_URL}) • [Store]({CSKY_STORE_URL})"
+        ),
+        inline=False,
+    )
+    embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed

@@ -9,9 +9,13 @@ from bot.embeds.help_embeds import (
 
 def make_ticket_embed() -> discord.Embed:
     embed = discord.Embed(
-        title="**Ticket**",
-        description="To create a ticket, simply click on the **Create** button below.\nOur team will get back to you as soon as possible.",
-        color=0x4482FF,
+        title="Support Ticket",
+        description=(
+            "Need help with a store purchase, license, or general inquiry? Click **Create** below to open a private support ticket.\n\n"
+            f"• **Store & Downloads:** [store.csky.dev]({CSKY_STORE_URL})\n"
+            f"• **Terms & Policies:** [csky.dev/terms]({CSKY_TERMS_URL})"
+        ),
+        color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
@@ -19,9 +23,12 @@ def make_ticket_embed() -> discord.Embed:
 
 def make_ticket_create_embed() -> discord.Embed:
     embed = discord.Embed(
-        title="**Thank you for creating a ticket.**",
-        description="**Please wait for our staff to arrive.** They will be with you shortly. In the meantime, please provide any additional information or details in the ticket. If you no longer need assistance and wish to close the ticket, you can click on the **Close** button below.",
-        color=0x4482FF,
+        title="Support Ticket Opened",
+        description=(
+            "Please wait for our staff to arrive. While you wait, share your question, order number, or server logs here.\n\n"
+            "If your issue is resolved, click **Close** below."
+        ),
+        color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
@@ -29,31 +36,34 @@ def make_ticket_create_embed() -> discord.Embed:
 
 def make_ticket_close_embed() -> discord.Embed:
     embed = discord.Embed(
-        description="**Are you sure you want to close this ticket?**\nPlease click on **Confirm** to proceed with closing the ticket, or click on **Cancel** to retract your request.",
-        color=0x4482FF,
+        description="**Are you sure you want to close this ticket?**\nClick **Confirm** to proceed with closing, or **Cancel** to keep it open.",
+        color=0x1A73E8,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
 def make_ticket_close_cancel_embed() -> discord.Embed:
     embed = discord.Embed(
-        description="**The closure of the ticket has been canceled!**",
-        color=0x4482FF,
+        description="**Ticket closure has been canceled.**",
+        color=0x1A73E8,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
 def make_order_embed() -> discord.Embed:
     embed = discord.Embed(
-        title="**Order Service**",
+        title="Commission & Order Service",
+        url="https://csky.dev/contact",
         description=(
-            "To place a custom commission or service order, click **Place Order** below.\n"
-            "Our team will scope your request inside a private ticket.\n\n"
+            "Start a custom plugin, resource pack, server setup, or optimization order. "
+            "Click **Place Order** below to open a ticket, or submit your full brief via **[csky.dev/contact](https://csky.dev/contact)**.\n\n"
+            "• **Public Track (40%–60% Off):** Discounted build; CSky retains BuiltByBit distribution rights.\n"
+            "• **Private Track (100% Exclusive):** Exclusive IP + full Java 21 / Kotlin source delivery.\n\n"
             f"• **Services & Stack:** [csky.dev/services]({CSKY_SERVICES_URL})\n"
-            f"• **Ready-Made Plugins & Setups:** [store.csky.dev]({CSKY_STORE_URL})\n"
-            f"• **Terms & Warranty:** [csky.dev/terms]({CSKY_TERMS_URL})"
+            f"• **Ready-Made Store:** [store.csky.dev]({CSKY_STORE_URL})\n"
+            f"• **Terms & 14-Day Warranty:** [csky.dev/terms]({CSKY_TERMS_URL})"
         ),
-        color=0x4482FF,
+        color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
@@ -61,15 +71,15 @@ def make_order_embed() -> discord.Embed:
 
 def make_order_create_embed() -> discord.Embed:
     embed = discord.Embed(
-        title="**Thank you for placing an order.**",
+        title="Order Ticket Opened",
         description=(
-            "**Please wait for our staff to review your request.** Feel free to share your server software, Minecraft version, specs, and budget here.\n\n"
+            "Our team will review your project shortly. Please share your server software, Minecraft version, commission track (Public or Private), specifications, and estimated budget.\n\n"
             f"**Commercial & Billing Policy ([csky.dev/terms]({CSKY_TERMS_URL})):**\n"
-            "> • **Deposit:** 50% upfront deposit, 50% on final handoff.\n"
+            "> • **Deposit:** 50% upfront deposit, 50% upon final sandbox approval.\n"
             "> • **Warranty:** 14-day post-delivery bug fix warranty included.\n"
             "> • **Authorized Billing:** Quotes & payments are handled **only** in this ticket by **Killer_Nova** or **Arsh** via **Tebex**, **Stripe**, or ticket-verified **UPI**."
         ),
-        color=0x4482FF,
+        color=0x1A73E8,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
@@ -77,16 +87,16 @@ def make_order_create_embed() -> discord.Embed:
 
 def make_order_close_embed() -> discord.Embed:
     embed = discord.Embed(
-        description="**Are you sure you want to cancel this order?**\n Please click on **Confirm** to proceed with canceling the order, or click on **Cancel** to retain your request.",
-        color=0x4482FF,
+        description="**Are you sure you want to cancel this order?**\nClick **Confirm** to cancel the order, or **Cancel** to keep this ticket open.",
+        color=0x1A73E8,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
 def make_order_close_cancel_embed() -> discord.Embed:
     embed = discord.Embed(
-        description="**Order cancellation has been canceled!**",
-        color=0x4482FF,
+        description="**Order cancellation has been canceled.**",
+        color=0x1A73E8,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed

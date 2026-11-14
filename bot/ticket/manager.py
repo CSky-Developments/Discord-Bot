@@ -136,6 +136,11 @@ class TicketManager:
         elif custom_id == "Order_Delete_Button":
             await self.handle_delete_ticket(interaction, member, channel, TicketType.ORDER)
 
+        elif custom_id == "Commission_Accept_Button":
+            await self.handle_commission_accept(interaction, member)
+        elif custom_id == "Commission_Decline_Button":
+            await self.handle_commission_decline(interaction, member)
+
         elif custom_id in ("Developer_Button", "Moderator_Button", "Supporter_Button"):
             await self.handle_create_ticket(interaction, member, TicketType.STAFF_APP, extra=custom_id)
         elif custom_id in ("Developer_Close_Button", "Moderator_Close_Button", "Supporter_Close_Button"):
@@ -157,9 +162,9 @@ class TicketManager:
 
     async def handle_create_ticket(self, interaction: discord.Interaction, member: discord.Member, ticket_type: TicketType, extra: Optional[str] = None):
         emoji_map = {
-            TicketType.NORMAL: "ðŸŽ«ãƒ»",
-            TicketType.ORDER: "ðŸ›’ãƒ»",
-            TicketType.STAFF_APP: "ðŸŽ“ãƒ»"
+            TicketType.NORMAL: "ticket-",
+            TicketType.ORDER: "order-",
+            TicketType.STAFF_APP: "app-"
         }
         category_map = {
             TicketType.NORMAL: Config.TICKET_NORMAL,
@@ -359,3 +364,165 @@ class TicketManager:
             await channel.set_permissions(member, overwrite=None)
         except Exception as e:
             BotLogger.error(f"Failed to remove member from ticket: {e}")
+
+    def _is_staff_member(self, member: discord.abc.User) -> bool:
+        if not isinstance(member, discord.Member):
+            return False
+        if member.guild_permissions.administrator:
+            return True
+        return any(r.id == Config.STAFF_ROLE_ID for r in member.roles)
+
+    def _resolve_member_from_contact(self, contact_raw: str) -> Optional[discord.Member]:
+        cleaned = contact_raw.strip().strip("`").lstrip("@").strip()
+        if not cleaned or "@" in cleaned:
+            return None
+
+        # Numeric Discord user ID or <@id>
+        id_match = re.fullmatch(r"(?:<@!?)?(\d{17,20})>?", cleaned)
+        if id_match:
+            return self.guild.get_member(int(id_match.group(1)))
+
+        base = cleaned.split("#")[0].strip().lower()
+        for m in self.guild.members:
+            if m.bot:
+                continue
+            if str(m).lower() == cleaned.lower():
+                return m
+            if m.name.lower() == base:
+                return m
+            if m.global_name and m.global_name.lower() == base:
+                return m
+            if m.display_name.lower() == base:
+                return m
+        return None
+
+    async def handle_commission_accept(self, interaction: discord.Interaction, member: discord.abc.User):
+        if not self._is_staff_member(member):
+            await interaction.response.send_message(
+                "Only staff members can accept commission requests.",
+                ephemeral=True,
+                delete_after=10,
+            )
+            return
+
+        if not interaction.message or not interaction.message.embeds:
+            await interaction.response.send_message("Commission details not found on this message.", ephemeral=True)
+            return
+
+        category = self.guild.get_channel(Config.TICKET_ORDER)
+        if not category or not isinstance(category, discord.CategoryChannel):
+            await interaction.response.send_message(
+                "Order ticket category is not configured.",
+                ephemeral=True,
+            )
+            return
+
+        src_embed = interaction.message.embeds[0]
+        field_map = {f.name: f.value for f in src_embed.fields}
+        client_name = field_map.get("Client", "Client")
+        contact_raw = field_map.get("Contact", "Not provided")
+
+        matched_member = self._resolve_member_from_contact(contact_raw)
+        ticket_id = self.get_ticket_id(TicketType.ORDER)
+        channel_name = f"order-{ticket_id}"
+
+        staff_role = self.guild.get_role(Config.STAFF_ROLE_ID)
+        overwrites = {
+            self.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        }
+        if staff_role:
+            overwrites[staff_role] = discord.PermissionOverwrite(view_channel=True)
+        if isinstance(member, discord.Member):
+            overwrites[member] = discord.PermissionOverwrite(view_channel=True)
+        if matched_member:
+            overwrites[matched_member] = discord.PermissionOverwrite(view_channel=True)
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            order_channel = await self.guild.create_text_channel(
+                name=channel_name,
+                category=category,
+                overwrites=overwrites,
+            )
+        except Exception as e:
+            BotLogger.error(f"Failed to create commission order ticket: {e}", True)
+            await interaction.followup.send("Failed to create order ticket channel.", ephemeral=True)
+            return
+
+        summary_embed = discord.Embed(
+            title=src_embed.title or "Accepted Commission Request",
+            url=src_embed.url,
+            color=0x1A73E8,
+        )
+        for f in src_embed.fields:
+            if f.name != "Status":
+                summary_embed.add_field(name=f.name, value=f.value, inline=f.inline)
+        summary_embed.set_footer(text=help_embeds.FOOTER_TEXT, icon_url=help_embeds.FOOTER_ICON)
+
+        intro_line = (
+            f"{matched_member.mention} Your commission request has been accepted by {member.mention}."
+            if matched_member
+            else f"Commission order ticket opened by {member.mention} for **{client_name}** ({contact_raw} — add the client with `/ticket add` once they join)."
+        )
+        await order_channel.send(content=intro_line, embeds=[summary_embed, ticket_embeds.make_order_create_embed()], view=buttons.create_order_close_view())
+
+        updated_embed = discord.Embed(
+            title=src_embed.title,
+            url=src_embed.url,
+            description=src_embed.description,
+            color=0x16A34A,
+            timestamp=src_embed.timestamp,
+        )
+        for f in src_embed.fields:
+            if f.name != "Status":
+                updated_embed.add_field(name=f.name, value=f.value, inline=f.inline)
+        updated_embed.add_field(
+            name="Status",
+            value=f"Accepted by {member.mention} — {order_channel.mention}",
+            inline=False,
+        )
+        if src_embed.footer:
+            updated_embed.set_footer(text=src_embed.footer.text, icon_url=src_embed.footer.icon_url)
+
+        await interaction.message.edit(embed=updated_embed, view=buttons.create_commission_request_view(disabled=True))
+        await interaction.followup.send(
+            f"Order ticket created: {order_channel.mention}"
+            + ("" if matched_member else " (client not matched in server automatically; use `/ticket add` if needed)."),
+            ephemeral=True,
+        )
+
+    async def handle_commission_decline(self, interaction: discord.Interaction, member: discord.abc.User):
+        if not self._is_staff_member(member):
+            await interaction.response.send_message(
+                "Only staff members can decline commission requests.",
+                ephemeral=True,
+                delete_after=10,
+            )
+            return
+
+        if not interaction.message or not interaction.message.embeds:
+            await interaction.response.send_message("Commission details not found on this message.", ephemeral=True)
+            return
+
+        src_embed = interaction.message.embeds[0]
+        updated_embed = discord.Embed(
+            title=src_embed.title,
+            url=src_embed.url,
+            description=src_embed.description,
+            color=0xDC2626,
+            timestamp=src_embed.timestamp,
+        )
+        for f in src_embed.fields:
+            if f.name != "Status":
+                updated_embed.add_field(name=f.name, value=f.value, inline=f.inline)
+        updated_embed.add_field(
+            name="Status",
+            value=f"Declined by {member.mention}",
+            inline=False,
+        )
+        if src_embed.footer:
+            updated_embed.set_footer(text=src_embed.footer.text, icon_url=src_embed.footer.icon_url)
+
+        await interaction.message.edit(embed=updated_embed, view=buttons.create_commission_request_view(disabled=True))
+        await interaction.response.send_message("Commission request declined.", ephemeral=True, delete_after=10)

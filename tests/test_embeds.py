@@ -10,9 +10,14 @@ def test_help_embeds():
 
     not_avail = embeds.make_not_available_embed()
     assert isinstance(not_avail, discord.Embed)
-    assert "currently not available" in not_avail.description
+    assert "currently unavailable" in not_avail.description
 
 def test_service_embeds():
+    custom_work = embeds.make_custom_work_embed()
+    assert isinstance(custom_work, discord.Embed)
+    assert "Custom Work" in custom_work.title
+    assert custom_work.color.value == 0x1A73E8
+
     building = embeds.make_building_embed()
     assert isinstance(building, discord.Embed)
     assert building.title == "Build・Building"
@@ -32,11 +37,15 @@ def test_service_embeds():
 def test_ticket_embeds():
     tick = embeds.make_ticket_embed()
     assert isinstance(tick, discord.Embed)
-    assert tick.title == "**Ticket**"
+    assert tick.title == "Support Ticket"
 
     tick_create = embeds.make_ticket_create_embed()
     assert isinstance(tick_create, discord.Embed)
-    assert "Thank you for creating a ticket" in tick_create.title
+    assert "Support Ticket Opened" in tick_create.title
+
+    order_emb = embeds.make_order_embed()
+    assert isinstance(order_emb, discord.Embed)
+    assert "Commission & Order Service" in order_emb.title
 
     dev_q = embeds.make_developer_questions_embed()
     assert isinstance(dev_q, discord.Embed)
