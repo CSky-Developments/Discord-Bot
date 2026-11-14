@@ -1,5 +1,13 @@
 import discord
 from discord.ui import View, Button
+from bot.embeds.help_embeds import (
+    CSKY_WEBSITE_URL,
+    CSKY_SERVICES_URL,
+    CSKY_TERMS_URL,
+    CSKY_STORE_URL,
+    CSKY_CRAFTER_URL,
+    CSKY_AUTH_URL,
+)
 
 def get_emoji(name: str, emoji_id: int) -> discord.PartialEmoji:
     return discord.PartialEmoji(name=name, id=emoji_id)
@@ -58,6 +66,16 @@ def create_order_create_view() -> View:
         custom_id="Order_Create_Button",
         emoji=get_emoji("Order", 1118978541871181915)
     ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.link,
+        label="Services",
+        url=CSKY_SERVICES_URL,
+    ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.link,
+        label="Terms",
+        url=CSKY_TERMS_URL,
+    ))
     return view
 
 def create_order_close_view() -> View:
@@ -92,52 +110,6 @@ def create_order_delete_view() -> View:
         style=discord.ButtonStyle.danger,
         label="Delete",
         custom_id="Order_Delete_Button",
-        emoji=get_emoji("Delete", 1118844967327113316)
-    ))
-    return view
-
-def create_plugin_generate_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.success,
-        label="Generate",
-        custom_id="Plugin_Generate_Button",
-        emoji=get_emoji("Developer", 1117845118154711112)
-    ))
-    return view
-
-def create_plugin_cancel_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Cancel",
-        custom_id="Plugin_Cancel_Button",
-        emoji=get_emoji("Developer_Cancel", 1123522806815129680)
-    ))
-    return view
-
-def create_plugin_cancel_confirm_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.success,
-        label="Confirm",
-        custom_id="Plugin_Cancel_Confirm_Button",
-        emoji=get_emoji("CloseConfirm", 1118942133517295757)
-    ))
-    view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Abort",
-        custom_id="Plugin_Cancel_Abort_Button",
-        emoji=get_emoji("CloseCancel", 1118844964273659924)
-    ))
-    return view
-
-def create_plugin_delete_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.danger,
-        label="Delete",
-        custom_id="Plugin_Delete_Button",
         emoji=get_emoji("Delete", 1118844967327113316)
     ))
     return view
@@ -274,4 +246,13 @@ def create_server_order_create_view() -> View:
         custom_id="Server_Order_Create_Button",
         emoji=get_emoji("Order", 1118978541871181915)
     ))
+    return view
+
+def create_links_view() -> View:
+    view = View(timeout=None)
+    view.add_item(Button(style=discord.ButtonStyle.link, label="Website", url=CSKY_WEBSITE_URL))
+    view.add_item(Button(style=discord.ButtonStyle.link, label="Store", url=CSKY_STORE_URL))
+    view.add_item(Button(style=discord.ButtonStyle.link, label="CSky Studio", url=CSKY_CRAFTER_URL))
+    view.add_item(Button(style=discord.ButtonStyle.link, label="Account SSO", url=CSKY_AUTH_URL))
+    view.add_item(Button(style=discord.ButtonStyle.link, label="Terms", url=CSKY_TERMS_URL))
     return view

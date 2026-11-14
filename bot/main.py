@@ -16,11 +16,14 @@ from bot.commands import (
     setup_invite_command,
     setup_ticket_command,
     setup_order_command,
-    setup_plugin_command,
     setup_reward_command,
     setup_staffapp_command,
     setup_embed_command,
+    setup_links_command,
+    setup_store_command,
+    setup_buyer_command,
 )
+from bot.commands.buyer import sync_buyer_role
 
 class CSkyBot(discord.Client):
     def __init__(self, intents: discord.Intents):
@@ -51,7 +54,7 @@ class CSkyBot(discord.Client):
         BotLogger.info("Connecting to bot and getting ready...", False)
         BotLogger.info("Setting up bot's presence...", False)
 
-        activity = discord.Activity(type=discord.ActivityType.watching, name="CSky Developments")
+        activity = discord.Activity(type=discord.ActivityType.watching, name="csky.dev | store.csky.dev")
         await self.change_presence(status=discord.Status.dnd, activity=activity)
         BotLogger.info("Bot's presence has set!", False)
         BotLogger.info("Bot is now ready!", False)
@@ -117,9 +120,11 @@ class CSkyBot(discord.Client):
             setup_invite_command(self.tree, guild_target, self.invite_manager)
             setup_ticket_command(self.tree, guild_target, self.ticket_manager)
             setup_order_command(self.tree, guild_target, self.ticket_manager)
-            setup_plugin_command(self.tree, guild_target, self.ticket_manager)
             setup_reward_command(self.tree, guild_target, self.ticket_manager)
             setup_staffapp_command(self.tree, guild_target)
+            setup_links_command(self.tree, guild_target)
+            setup_store_command(self.tree, guild_target)
+            setup_buyer_command(self.tree, guild_target)
 
             synced = await self.tree.sync(guild=guild_target)
             BotLogger.info(f"Successfully registered {len(synced)} commands for guild {self.guild_obj.name}", False)
@@ -158,6 +163,7 @@ class CSkyBot(discord.Client):
     async def on_member_join(self, member: discord.Member):
         if self.invite_tracker:
             await self.invite_tracker.on_member_join(member)
+        await sync_buyer_role(member)
 
     async def on_member_remove(self, member: discord.Member):
         if self.invite_tracker:

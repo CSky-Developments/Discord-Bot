@@ -20,7 +20,6 @@ CATEGORIES = [
     "Plugin Development",
     "Ticket",
     "Order",
-    "Plugin Generation",
     "Reward",
     "Staff Application",
 ]
@@ -99,8 +98,6 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
             elif cat_val == "Plugin Development":
                 await channel.send(embed=service_embeds.make_plugin_development_embed())
                 await channel.send(embed=service_embeds.make_service_order_embed(color=0x938FF1), view=buttons.create_order_create_view())
-            elif cat_val == "Plugin Generation":
-                await channel.send(embed=ticket_embeds.make_plugin_gen_embed(), view=buttons.create_plugin_generate_view())
             elif cat_val == "Reward":
                 if embed_val:
                     if embed_val == "Invite":
@@ -140,9 +137,6 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
             await send_confirmation()
         elif cat_val == "Ticket":
             await channel.send(embed=ticket_embeds.make_ticket_embed(), view=buttons.create_ticket_create_view())
-            await send_confirmation()
-        elif cat_val == "Plugin Generation":
-            await channel.send(embed=ticket_embeds.make_plugin_gen_embed(), view=buttons.create_plugin_generate_view())
             await send_confirmation()
         elif cat_val == "Order":
             await channel.send(embed=ticket_embeds.make_order_embed(), view=buttons.create_order_create_view())

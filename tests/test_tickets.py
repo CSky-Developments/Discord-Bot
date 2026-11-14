@@ -9,7 +9,6 @@ def test_ticket_data_serialization():
     data = TicketData()
     data.normal_ticket_id = 42
     data.order_ticket_id = 15
-    data.plugin_gen_ticket_id = 7
     data.reward_ticket_id = 3
     data.staff_app_ticket_id = 99
 
@@ -17,7 +16,6 @@ def test_ticket_data_serialization():
     assert d == {
         "normalTicketID": 42,
         "orderTicketID": 15,
-        "pluginGenTicketID": 7,
         "rewardTicketID": 3,
         "staffAppTicketID": 99,
     }
@@ -25,7 +23,6 @@ def test_ticket_data_serialization():
     reloaded = TicketData.from_dict(d)
     assert reloaded.normal_ticket_id == 42
     assert reloaded.order_ticket_id == 15
-    assert reloaded.plugin_gen_ticket_id == 7
     assert reloaded.reward_ticket_id == 3
     assert reloaded.staff_app_ticket_id == 99
 

@@ -3,35 +3,51 @@ import discord
 FOOTER_TEXT = "・CSky Developments"
 FOOTER_ICON = "https://cdn.discordapp.com/attachments/1112390125276631080/1112442565766168808/CSkyDevelopements.png"
 
+CSKY_WEBSITE_URL = "https://csky.dev"
+CSKY_SERVICES_URL = "https://csky.dev/services"
+CSKY_TERMS_URL = "https://csky.dev/terms"
+CSKY_ANNOUNCEMENTS_URL = "https://csky.dev/announcements"
+CSKY_STORE_URL = "https://store.csky.dev"
+CSKY_CRAFTER_URL = "https://crafter.csky.dev"
+CSKY_AUTH_URL = "https://auth.csky.dev"
+CSKY_API_URL = "https://api.csky.dev"
+
 def make_help_embed() -> discord.Embed:
     embed = discord.Embed(
         title="CSky Developments - Help Menu",
-        description="Below is a list of all available commands for the CSky Developments bot. Use the prefix `c!` to execute these commands.",
-        color=0xFF0000,
+        description=(
+            "Below is a list of all available slash commands for the **CSky Developments** bot.\n"
+            f"Visit our web ecosystem: [Website]({CSKY_WEBSITE_URL}) • [Store]({CSKY_STORE_URL}) • [CSky Studio]({CSKY_CRAFTER_URL})"
+        ),
+        color=0x2563EB,
     )
     embed.add_field(
-        name="General Commands",
-        value="**c!help** or **c!?** - Displays this help menu.\n**c!not available** - Shows information about unavailable services.",
+        name="Web & Store",
+        value=(
+            "**/links** — Official links for Website, Store, CSky Studio & Terms.\n"
+            "**/store search** — Browse or search live products from `store.csky.dev`.\n"
+            "**/store product** — View detailed info & pricing for a store product.\n"
+            "**/claim-buyer** — Sync your `store.csky.dev` purchases & claim your Buyer role.\n"
+            "**/status** — Check live uptime of CSky web services & APIs."
+        ),
         inline=False,
     )
     embed.add_field(
-        name="Support & Applications",
-        value="**c!ticket** or **c!tickets** - Opens a support ticket.\n**c!staff application** or **c!staff app** - Information about staff applications.",
+        name="Support, Orders & Applications",
+        value=(
+            "**/ticket** — Open or manage a support ticket.\n"
+            "**/order** — Place a custom commission or service order.\n"
+            "**/staffapp** — View staff application info and open an application."
+        ),
         inline=False,
     )
     embed.add_field(
-        name="Orders & Services",
-        value="**c!order** - Places a new order.\n**c!plugin development** - Information about custom plugin development.",
-        inline=False,
-    )
-    embed.add_field(
-        name="Server Optimizations",
-        value="**c!optimization** - Lists all server optimization services.\n**c!bukkit optimization** - Bukkit server optimization.\n**c!spigot optimization** - Spigot server optimization.\n**c!paper optimization** - Paper server optimization.\n**c!purple optimization** - Purpur server optimization.\n**c!bungeecode optimization** - BungeeCord server optimization.\n**c!waterfall optimization** - Waterfall server optimization.\n**c!velocity optimization** - Velocity server optimization.\n**c!forge optimization** - Forge server optimization.\n**c!fabric optimization** - Fabric server optimization.",
-        inline=False,
-    )
-    embed.add_field(
-        name="Rewards",
-        value="**c!reward** or **c!rewards** - View available rewards.\n**c!invite reward** or **c!invite rewards** - Claim invite-based rewards.\n**c!booster reward** or **c!booster rewards** - Claim server booster rewards.",
+        name="Community & Rewards",
+        value=(
+            "**/invite** — Check your invite count and leaderboard stats.\n"
+            "**/reward** — Claim invite or server booster rewards.\n"
+            "**/ping** — Check bot latency."
+        ),
         inline=False,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)

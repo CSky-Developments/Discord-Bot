@@ -1,5 +1,11 @@
 import discord
-from bot.embeds.help_embeds import FOOTER_TEXT, FOOTER_ICON
+from bot.embeds.help_embeds import (
+    FOOTER_TEXT,
+    FOOTER_ICON,
+    CSKY_SERVICES_URL,
+    CSKY_TERMS_URL,
+    CSKY_STORE_URL,
+)
 
 def make_ticket_embed() -> discord.Embed:
     embed = discord.Embed(
@@ -40,7 +46,13 @@ def make_ticket_close_cancel_embed() -> discord.Embed:
 def make_order_embed() -> discord.Embed:
     embed = discord.Embed(
         title="**Order Service**",
-        description="To place an order, simply click on the **Place Order** button below.\nOur team will review your request and get back to you as soon as possible.",
+        description=(
+            "To place a custom commission or service order, click **Place Order** below.\n"
+            "Our team will scope your request inside a private ticket.\n\n"
+            f"• **Services & Stack:** [csky.dev/services]({CSKY_SERVICES_URL})\n"
+            f"• **Ready-Made Plugins & Setups:** [store.csky.dev]({CSKY_STORE_URL})\n"
+            f"• **Terms & Warranty:** [csky.dev/terms]({CSKY_TERMS_URL})"
+        ),
         color=0x4482FF,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
@@ -50,7 +62,13 @@ def make_order_embed() -> discord.Embed:
 def make_order_create_embed() -> discord.Embed:
     embed = discord.Embed(
         title="**Thank you for placing an order.**",
-        description="**Please wait for our staff to review your request.** They will get back to you shortly with further details. If you need to provide any additional information or have any questions, please mention it here. To cancel your order, simply click on the **Cancel** button below.",
+        description=(
+            "**Please wait for our staff to review your request.** Feel free to share your server software, Minecraft version, specs, and budget here.\n\n"
+            f"**Commercial & Billing Policy ([csky.dev/terms]({CSKY_TERMS_URL})):**\n"
+            "> • **Deposit:** 50% upfront deposit, 50% on final handoff.\n"
+            "> • **Warranty:** 14-day post-delivery bug fix warranty included.\n"
+            "> • **Authorized Billing:** Quotes & payments are handled **only** in this ticket by **Killer_Nova** or **Arsh** via **Tebex**, **Stripe**, or ticket-verified **UPI**."
+        ),
         color=0x4482FF,
     )
     embed.set_thumbnail(url=FOOTER_ICON)
@@ -73,58 +91,13 @@ def make_order_close_cancel_embed() -> discord.Embed:
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
-def make_plugin_gen_embed() -> discord.Embed:
-    embed = discord.Embed(
-        title="**Plugin・Generation**",
-        description=(
-            "**Supported Versions:** `1.16.*` to `1.21.*`\n"
-            "**How to Generate Your Plugin:**\n\n"
-            "**Step 1: Get Your Gemini API Key**\n"
-            "> • Visit [Google AI Studio](https://aistudio.google.com/app/apikey)\n"
-            "> • Sign in with your Google account\n"
-            "> • Click \"Create API Key\" and copy it\n\n"
-            "**Step 2: Click Generate Below**\n"
-            "> • Fill in your API key, plugin name, version, and description\n"
-            "> • Be specific about what you want the plugin to do\n\n"
-            "**Step 3: Wait for Generation**\n"
-            "> • The AI will generate your custom plugin code\n"
-            "> • Compilation happens automatically\n\n"
-            "**Step 4: Download Your Plugin**\n"
-            "> • Receive the compiled .jar file\n"
-            "> • Get a README with usage instructions\n"
-            "> • Ready to use on your server!\n\n"
-            "**Average Generation Time:** `5-10 minutes`\n"
-            "**Cost:** `Free`"
-        ),
-        color=0x4482FF,
-    )
-    embed.set_thumbnail(url=FOOTER_ICON)
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
-def make_plugin_gen_close_embed() -> discord.Embed:
-    embed = discord.Embed(
-        description="**Are you sure you want to cancel this plugin generation?**\nClick **Confirm** to proceed with cancellation, or click **Cancel** to continue.",
-        color=0xE74C3C,
-    )
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
-def make_plugin_gen_close_cancel_embed() -> discord.Embed:
-    embed = discord.Embed(
-        description="**Plugin generation cancellation has been aborted.**",
-        color=0xE74C3C,
-    )
-    embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
-    return embed
-
 def make_reward_embed() -> discord.Embed:
     embed = discord.Embed(
         title="**Reward Claim**",
         description="To claim a reward, simply click on the **Claim** button below.\nOur team will process your request and provide you with the reward as soon as possible.",
         color=0x4482FF,
     )
-    embed.set_thumbnail(url="https://example.com/reward-system.png")
+    embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 
@@ -134,7 +107,7 @@ def make_reward_create_embed() -> discord.Embed:
         description="**Please wait for our team to process your request.** They will be with you shortly. In the meantime, please provide any additional information or details in the ticket. If you change your mind and no longer wish to claim the reward, you can click on the **Cancel** button below.",
         color=0x4482FF,
     )
-    embed.set_thumbnail(url="https://example.com/reward-system.png")
+    embed.set_thumbnail(url=FOOTER_ICON)
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)
     return embed
 

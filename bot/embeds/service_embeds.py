@@ -1,5 +1,11 @@
 import discord
-from bot.embeds.help_embeds import FOOTER_TEXT, FOOTER_ICON
+from bot.embeds.help_embeds import (
+    FOOTER_TEXT,
+    FOOTER_ICON,
+    CSKY_SERVICES_URL,
+    CSKY_TERMS_URL,
+    CSKY_STORE_URL,
+)
 
 ARIAL_FOOTER_TEXT = "・ArialNodes"
 ARIAL_FOOTER_ICON = "https://cdn.discordapp.com/attachments/1119317556893855826/1384873606021910649/ArialNodes.jpeg?ex=6854038d&is=6852b20d&hm=345f2e4d59144d461cd1c544253c724507849b7e6fe5410a2b96112e4710682b&"
@@ -26,10 +32,10 @@ def make_server_setup_embed() -> discord.Embed:
     embed = discord.Embed(
         title="Server・Setup",
         description=(
-            "**Accepted Versions:** `1.8.8`, `1.16`–`1.21.5`\n \n"
+            "**Accepted Versions:** `1.8.8`, `1.16`–`1.21.5`, `Paper 26.3`\n \n"
             "**Setup pricing is based on (but not limited to):**\n"
             "● **Type of Server** — e.g. Game, Network, Modded, SMP, etc. \n"
-            "● **Software** — Type of server software (e.g., Paper, Velocity, BungeeCord, Forge). \n"
+            "● **Software** — Paper, Purpur, Folia, Velocity, BungeeCord, Forge. \n"
             "● **Version Compatibility** — Specific version requirements may affect pricing. \n"
             "● **Features** — Number of features, custom systems, and level of personalization. \n"
             "● **Sounds & Effects** — Quantity and complexity of sound or particle effects. \n"
@@ -47,10 +53,10 @@ def make_texture_pack_embed() -> discord.Embed:
     embed = discord.Embed(
         title="Texture・Pack",
         description=(
-            "**Supported Versions:** `1.8`, `1.16`–`1.21.5`\n \n"
+            "**Supported Versions:** `1.8`, `1.16`–`1.21.5`, `Pack Format 97.1 (26.3)`\n \n"
             "**Texture Pack pricing is based on (but not limited to):**\n"
             "● **Resolution** — e.g., `16x`, `32x`, `64x`, `128x`, etc. \n"
-            "● **Pack Type** — PvP, Custom UI, RPG, Realistic, Vanilla+, etc. \n"
+            "● **Pack Type** — PvP, Custom UI, Oraxen / ItemsAdder 3D Models, RPG, Vanilla+. \n"
             "● **Assets Required** — Number of items, blocks, GUIs, entities, and other custom elements. \n"
             "● **Style & Complexity** — Level of detail, animations, or visual effects. \n"
             "● **Version Compatibility** — Whether you want it to support multiple versions. \n"
@@ -129,11 +135,11 @@ def make_server_optimization_embed() -> discord.Embed:
     embed = discord.Embed(
         title="Server・Optimization",
         description=(
-            "**Supported Versions:** `1.8.8`, `1.16`–`1.21.5`\n \n"
+            "**Supported Versions:** `1.8.8`, `1.16`–`1.21.5`, `Paper 26.3` (`20.0 TPS` Standard)\n \n"
             "**Optimization pricing is based on (but not limited to):**\n"
             "● **Server Type** — SMP, PvP, Modded, Network, etc. \n"
-            "● **Software** — Paper, Purpur, Velocity, BungeeCord, Fabric, Forge, etc. \n"
-            "● **Performance Goals** — TPS stability, lower RAM usage, improved CPU efficiency. \n"
+            "● **Software** — Paper, Purpur, Folia, Velocity, BungeeCord, Fabric, Forge. \n"
+            "● **Performance Goals** — Spark/timings profiling, JVM & GC tuning, HikariCP pooling. \n"
             "● **Plugin/Mod Count** — Number of plugins or mods that need profiling/tuning. \n"
             "● **World Size & Player Capacity** — Impacts memory, chunk handling, and GC behavior. \n"
             "● **Time Required** — How long optimization will take (profiling, testing, tuning). \n"
@@ -150,13 +156,13 @@ def make_plugin_development_embed() -> discord.Embed:
     embed = discord.Embed(
         title="Plugin・Development",
         description=(
-            "**Supported Versions:** `1.8.8`, `1.16`–`1.21.5`\n\n"
+            "**Supported Versions:** `1.8.8`, `1.16`–`1.21.5`, `Paper 26.3` (`Java 21 LTS`)\n\n"
             "**Plugin pricing is based on (but not limited to):**\n"
             "● **Type of Plugin** — Simple utilities, minigames, core systems, APIs, etc.  \n"
             "● **Complexity** — Amount of logic, conditions, and feature depth.  \n"
             "● **Commands & GUIs** — Number of commands, menus, and custom interfaces.  \n"
-            "● **Performance Requirements** — Asynchronous handling, optimization goals, etc.  \n"
-            "● **External Integrations** — MySQL, MongoDB, APIs, Discord bots, Bungee support, etc.  \n"
+            "● **Performance Requirements** — Async I/O, virtual threads, `20.0 TPS` profiling.  \n"
+            "● **External Integrations** — MySQL/HikariCP, Redis, Velocity, Discord, CLE v1 Licensing.  \n"
             "● **Time Required** — How long the project will take to plan, code, and test.  \n"
             "● Other custom requests or scalability considerations.\n\n"
             "**Minimum Price:** `179 INR/plugin`\n"
@@ -170,7 +176,12 @@ def make_plugin_development_embed() -> discord.Embed:
 def make_service_order_embed(color: int = 0x4482FF) -> discord.Embed:
     embed = discord.Embed(
         title="**Order Service**",
-        description="To place an order, simply click on the **Place Order** button below.\nOur team will review your request and get back to you as soon as possible.",
+        description=(
+            "To place an order, click **Place Order** below and our team will scope your request in a private ticket.\n\n"
+            f"• **Full Services:** [csky.dev/services]({CSKY_SERVICES_URL})\n"
+            f"• **Ready-Made Store:** [store.csky.dev]({CSKY_STORE_URL})\n"
+            f"• **Terms & 14-Day Warranty:** [csky.dev/terms]({CSKY_TERMS_URL})"
+        ),
         color=color,
     )
     embed.set_footer(text=FOOTER_TEXT, icon_url=FOOTER_ICON)

@@ -18,3 +18,8 @@ Ticket-Normal-Category: "1112389077547896842"
 Ticket-Staff-App-Category: "1117767193933905921"
 
 Support-Category-ID: "1112388539083128933"
+
+# Optional: Automatic Buyer Role Sync (store.csky.dev)
+Buyer-Role-ID: "0"
+Internal-API-Secret: ""
+Store-API-URL: "https://store.csky.dev"
