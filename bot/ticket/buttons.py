@@ -229,16 +229,6 @@ def create_app_delete_view() -> View:
     ))
     return view
 
-def create_server_order_create_view() -> View:
-    view = View(timeout=None)
-    view.add_item(Button(
-        style=discord.ButtonStyle.success,
-        label="Place Order",
-        custom_id="Server_Order_Create_Button",
-        emoji=get_emoji("Order", 1118978541871181915)
-    ))
-    return view
-
 def create_links_view() -> View:
     view = View(timeout=None)
     view.add_item(Button(style=discord.ButtonStyle.link, label="Website", url=CSKY_WEBSITE_URL))

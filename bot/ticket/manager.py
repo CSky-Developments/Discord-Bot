@@ -122,9 +122,6 @@ class TicketManager:
                 view=buttons.create_order_close_confirm_view(),
                 ephemeral=True
             )
-        elif custom_id == "Server_Order_Create_Button":
-            await interaction.response.send_message("Continue at https://discord.gg/Cftg5GT7vd", ephemeral=True)
-            BotLogger.info(f"A server hosting order is requested by `{member.name}`.", True)
         elif custom_id == "Order_Cancel_Confirm_Button":
             await self.handle_close_confirm(interaction, member, channel, TicketType.ORDER)
         elif custom_id == "Order_Cancel_Cancel_Button":

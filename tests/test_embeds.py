@@ -18,18 +18,6 @@ def test_service_embeds():
     assert "Custom Work" in custom_work.title
     assert custom_work.color.value == 0x1A73E8
 
-    building = embeds.make_building_embed()
-    assert isinstance(building, discord.Embed)
-    assert building.title == "Build・Building"
-
-    setup = embeds.make_server_setup_embed()
-    assert isinstance(setup, discord.Embed)
-    assert setup.title == "Server・Setup"
-
-    dirt = embeds.make_dirt_plan_embed()
-    assert isinstance(dirt, discord.Embed)
-    assert dirt.title == "Dirt Plan"
-
     service_order = embeds.make_service_order_embed()
     assert isinstance(service_order, discord.Embed)
     assert "Place Order" in service_order.description

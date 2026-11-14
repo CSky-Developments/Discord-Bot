@@ -5,20 +5,6 @@ from bot.embeds.help_embeds import (
     make_not_available_embed,
 )
 from bot.embeds.service_embeds import (
-    make_building_embed,
-    make_server_setup_embed,
-    make_texture_pack_embed,
-    make_dirt_plan_embed,
-    make_wood_plan_embed,
-    make_coal_plan_embed,
-    make_stone_plan_embed,
-    make_iron_plan_embed,
-    make_gold_plan_embed,
-    make_diamond_plan_embed,
-    make_netherite_plan_embed,
-    make_locations_payments_embed,
-    make_server_optimization_embed,
-    make_plugin_development_embed,
     make_service_order_embed,
     make_custom_work_embed,
 )
