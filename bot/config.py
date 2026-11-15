@@ -24,6 +24,8 @@ class Config:
     INTERNAL_API_SECRET: str = ""
     INTERNAL_HTTP_PORT: int = 8080
     STORE_API_URL: str = "https://store.csky.dev"
+    BACKEND_API_URL: str = "http://csky-backend:4000"
+    PAYMENT_GATEWAY_URL: str = "https://payment.csky.dev"
 
     @classmethod
     def load(cls, config_path: Optional[str] = None):
@@ -62,6 +64,8 @@ class Config:
         cls.INTERNAL_API_SECRET = cls._get_str(data, "Internal-API-Secret", "INTERNAL_API_SECRET", required=False)
         cls.INTERNAL_HTTP_PORT = cls._get_int(data, "Internal-HTTP-Port", "INTERNAL_HTTP_PORT", required=False) or 8080
         cls.STORE_API_URL = cls._get_str(data, "Store-API-URL", "STORE_API_URL", required=False) or "https://store.csky.dev"
+        cls.BACKEND_API_URL = cls._get_str(data, "Backend-API-URL", "BACKEND_API_URL", required=False) or "http://csky-backend:4000"
+        cls.PAYMENT_GATEWAY_URL = cls._get_str(data, "Payment-Gateway-URL", "PAYMENT_GATEWAY_URL", required=False) or "https://payment.csky.dev"
 
     @classmethod
     def _get_str(cls, data: Optional[Dict[str, Any]], yaml_key: str, env_key: str, required: bool = True) -> str:

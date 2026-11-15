@@ -152,6 +152,57 @@ def build_purchase_embed(data: dict) -> tuple[discord.Embed, str]:
     return embed, product_url
 
 
+def build_payment_embed(data: dict) -> tuple[discord.Embed, str]:
+    reference = _clean_text(data.get("reference"), 60) or "CSKY-PAY"
+    currency = (_clean_text(data.get("currency"), 10) or "INR").upper()
+    display_amount = _parse_amount(data.get("displayAmount"), "displayAmount")
+    if display_amount <= 0:
+        display_amount = _parse_amount(data.get("amount"), "amount") / 100.0
+
+    payment_method = _clean_text(data.get("paymentMethod"), 60) or "Razorpay"
+    payment_id = _clean_text(data.get("razorpayPaymentId"), 80) or "Verified"
+    title_text = _clean_text(data.get("title"), 120)
+    note = _clean_text(data.get("note"), 500)
+    payer_name = _clean_text(data.get("payerName"), 100)
+    payer_email = _clean_text(data.get("payerEmail"), 150)
+    discord_tag = _clean_text(data.get("discordTag"), 100)
+    discord_user_id = _clean_text(data.get("discordUserId"), 40)
+
+    if re.fullmatch(r"\d{17,20}", discord_user_id):
+        payer_display = f"<@{discord_user_id}>" + (f" ({discord_tag})" if discord_tag else "")
+    else:
+        payer_display = discord_tag or payer_name or payer_email or "Customer"
+
+    gateway_url = f"{Config.PAYMENT_GATEWAY_URL.rstrip('/')}/?ref={reference}"
+    amount_str = f"`{_format_money(display_amount, currency)} {currency}`"
+
+    embed = discord.Embed(
+        title=f"Payment Received — {reference}",
+        url=gateway_url,
+        color=0x16A34A,
+    )
+    embed.set_author(
+        name="CSky Payment Gateway • Verified",
+        url=Config.PAYMENT_GATEWAY_URL,
+        icon_url=FOOTER_ICON,
+    )
+    embed.add_field(name="Amount Paid", value=amount_str, inline=True)
+    embed.add_field(name="Method", value=f"`{payment_method.upper()}`", inline=True)
+    embed.add_field(name="Payer", value=payer_display, inline=True)
+    if title_text:
+        embed.add_field(name="Title", value=title_text, inline=False)
+    if note:
+        embed.add_field(name="Note / Purpose", value=note, inline=False)
+    embed.add_field(
+        name="Gateway Reference",
+        value=f"Ref `{reference}` • Razorpay `{payment_id}`",
+        inline=False,
+    )
+    embed.set_footer(text="CSky Payment Gateway • payment.csky.dev", icon_url=FOOTER_ICON)
+    embed.timestamp = discord.utils.utcnow()
+    return embed, gateway_url
+
+
 async def start_internal_api(bot: discord.Client) -> Optional[web.AppRunner]:
     async def health(_request: web.Request) -> web.Response:
         return web.json_response({"ok": True})
@@ -252,10 +303,82 @@ async def start_internal_api(bot: discord.Client) -> Optional[web.AppRunner]:
         )
         return web.json_response({"ok": True, "messageId": str(msg.id)})
 
+    async def handle_payment(request: web.Request) -> web.Response:
+        expected_secret = Config.INTERNAL_API_SECRET
+        if not expected_secret:
+            return web.json_response(
+                {"error": "INTERNAL_API_SECRET is not configured on bot"},
+                status=503,
+            )
+
+        provided_secret = request.headers.get("x-csky-internal-secret", "")
+        if not provided_secret or not hmac.compare_digest(provided_secret, expected_secret):
+            return web.json_response({"error": "Unauthorized"}, status=401)
+
+        try:
+            payload = await request.json()
+        except Exception:
+            return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+        if not isinstance(payload, dict):
+            return web.json_response({"error": "JSON object required"}, status=400)
+
+        guild = getattr(bot, "guild_obj", None)
+        if not guild:
+            return web.json_response({"error": "Bot guild is not ready"}, status=503)
+
+        try:
+            embed, gateway_url = build_payment_embed(payload)
+        except (TypeError, ValueError) as exc:
+            return web.json_response({"error": f"Invalid payment payload: {exc}"}, status=400)
+
+        view = discord.ui.View()
+        view.add_item(
+            discord.ui.Button(
+                label="View Receipt",
+                style=discord.ButtonStyle.link,
+                url=gateway_url,
+            )
+        )
+
+        sent_ids: list[str] = []
+        primary_channel_id = Config.SALES_CHANNEL_ID or Config.LOG_CHANNEL_ID
+        if primary_channel_id:
+            ch = guild.get_channel(primary_channel_id)
+            if isinstance(ch, discord.TextChannel):
+                msg = await ch.send(
+                    embed=embed,
+                    view=view,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
+                sent_ids.append(str(msg.id))
+
+        ticket_channel_raw = _clean_text(payload.get("discordChannelId"), 40)
+        if re.fullmatch(r"\d{17,20}", ticket_channel_raw):
+            ticket_channel_id = int(ticket_channel_raw)
+            if ticket_channel_id != primary_channel_id:
+                ticket_ch = guild.get_channel(ticket_channel_id)
+                if isinstance(ticket_ch, discord.TextChannel):
+                    t_msg = await ticket_ch.send(
+                        embed=embed,
+                        view=view,
+                        allowed_mentions=discord.AllowedMentions.none(),
+                    )
+                    sent_ids.append(str(t_msg.id))
+
+        if not sent_ids:
+            return web.json_response(
+                {"error": "No configured sales/log/ticket channel found"},
+                status=500,
+            )
+
+        return web.json_response({"ok": True, "messageIds": sent_ids})
+
     app = web.Application()
     app.router.add_get("/health", health)
     app.router.add_post("/internal/commission", handle_commission)
     app.router.add_post("/internal/purchase", handle_purchase)
+    app.router.add_post("/internal/payment", handle_payment)
 
     runner = web.AppRunner(app)
     await runner.setup()

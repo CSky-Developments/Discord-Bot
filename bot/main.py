@@ -17,6 +17,7 @@ from bot.commands import (
     setup_embed_command,
     setup_links_command,
     setup_store_command,
+    setup_pay_command,
 )
 from bot.commands.buyer import sync_buyer_role
 from bot.internal_api import start_internal_api
@@ -106,6 +107,7 @@ class CSkyBot(discord.Client):
             setup_staffapp_command(self.tree, guild_target)
             setup_links_command(self.tree, guild_target)
             setup_store_command(self.tree, guild_target)
+            setup_pay_command(self.tree, guild_target)
 
             synced = await self.tree.sync(guild=guild_target)
             BotLogger.info(f"Successfully registered {len(synced)} commands for guild {self.guild_obj.name}", False)
