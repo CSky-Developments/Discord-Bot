@@ -1,3 +1,5 @@
+name: csky-bot
+
 services:
   bot:
     build:
