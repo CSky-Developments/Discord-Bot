@@ -172,6 +172,36 @@ def create_app_create_view() -> View:
         custom_id="Supporter_Button",
         emoji=get_emoji("Supporter", 1117847120565776444)
     ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.secondary,
+        label="Marketing",
+        custom_id="Marketing_Button",
+        emoji="📣",
+    ))
+    view.add_item(Button(
+        style=discord.ButtonStyle.secondary,
+        label="Creator",
+        custom_id="Creator_Button",
+        emoji="🎥",
+    ))
+    return view
+
+def create_marketing_close_view() -> View:
+    view = View(timeout=None)
+    view.add_item(Button(
+        style=discord.ButtonStyle.danger,
+        label="Close",
+        custom_id="Marketing_Close_Button",
+    ))
+    return view
+
+def create_creator_close_view() -> View:
+    view = View(timeout=None)
+    view.add_item(Button(
+        style=discord.ButtonStyle.danger,
+        label="Close",
+        custom_id="Creator_Close_Button",
+    ))
     return view
 
 def create_developer_close_view() -> View:

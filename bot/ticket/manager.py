@@ -171,10 +171,10 @@ class TicketManager:
         elif custom_id == "Purchase_Ticket_Button":
             await self.handle_purchase_ticket(interaction, member)
 
-        elif custom_id in ("Developer_Button", "Moderator_Button", "Supporter_Button"):
+        elif custom_id in ("Developer_Button", "Moderator_Button", "Supporter_Button", "Marketing_Button", "Creator_Button"):
             role_name = custom_id.replace("_Button", "")
             await interaction.response.send_modal(StaffApplicationModal(self, role_name))
-        elif custom_id in ("Developer_Close_Button", "Moderator_Close_Button", "Supporter_Close_Button"):
+        elif custom_id in ("Developer_Close_Button", "Moderator_Close_Button", "Supporter_Close_Button", "Marketing_Close_Button", "Creator_Close_Button"):
             await interaction.response.send_message(
                 embed=ticket_embeds.make_staff_app_close_embed(),
                 view=buttons.create_app_close_confirm_view(),
@@ -840,6 +840,8 @@ class TicketManager:
             "Developer": buttons.create_developer_close_view,
             "Moderator": buttons.create_moderator_close_view,
             "Supporter": buttons.create_supporter_close_view,
+            "Marketing": buttons.create_marketing_close_view,
+            "Creator": buttons.create_creator_close_view,
         }
         close_view = close_view_map.get(role_name, buttons.create_ticket_close_view)()
 
