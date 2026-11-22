@@ -68,12 +68,12 @@ class StaffApplicationModal(Modal):
                 "How do you handle multiple player tickets, bug reports, and onboarding?",
             ),
             "Marketing": (
-                "Marketing Ideas & Community Knowledge",
-                "Which Minecraft trends/communities do you follow? Share your best idea to promote CSky, plus any big servers, YouTube channels or SMP communities you're part of or connected to...",
+                "Marketing Ideas & Community Reach",
+                "Trends/communities you follow, top promo idea, and server/creator links...",
             ),
             "Creator": (
                 "Content & Channels / Connections",
-                "Links to your YouTube/TikTok/social channels, audience size, content examples, and any creators or communities you could collab with...",
+                "YouTube/TikTok links, audience size, sample videos, and creator collabs...",
             ),
         }
         prompt_label, prompt_placeholder = role_prompts.get(

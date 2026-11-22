@@ -185,7 +185,18 @@ class CSkyBot(discord.Client):
     async def on_interaction(self, interaction: discord.Interaction):
         # Component interactions (buttons)
         if interaction.type == discord.InteractionType.component and self.ticket_manager:
-            await self.ticket_manager.handle_button_interaction(interaction)
+            try:
+                await self.ticket_manager.handle_button_interaction(interaction)
+            except Exception as ex:
+                cid = interaction.data.get("custom_id") if interaction.data else "unknown"
+                BotLogger.error(f"Error handling button interaction '{cid}': {ex}", True)
+                try:
+                    if not interaction.response.is_done():
+                        await interaction.response.send_message("❌ An error occurred processing this action.", ephemeral=True)
+                    else:
+                        await interaction.followup.send("❌ An error occurred processing this action.", ephemeral=True)
+                except Exception:
+                    pass
 
 def main():
     BotLogger.rotate_active_logs()

@@ -33,6 +33,8 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
             )
             return
 
+        await interaction.response.defer(ephemeral=True)
+
         cat_val = category.value
         channel = interaction.channel
 
@@ -59,7 +61,7 @@ def setup_embed_command(tree: app_commands.CommandTree, guild: discord.Object):
                 view=buttons.create_order_create_view(),
             )
         else:
-            await interaction.response.send_message("Unknown category.", ephemeral=True)
+            await interaction.followup.send("Unknown category.", ephemeral=True)
             return
 
-        await interaction.response.send_message("Sent.", ephemeral=True, delete_after=10)
+        await interaction.followup.send("Sent.", ephemeral=True)
